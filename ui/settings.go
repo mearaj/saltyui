@@ -260,12 +260,22 @@ func (s *Settings) drawRegistrationButton(gtx Gtx) Dim {
 		Icon:   s.iconCreateNewID,
 		Text:   buttonText,
 	}
-	if s.Service.CurrentIdentity() != nil && button.Clicked() && !s.registerLoading {
+	if button.Clicked() && !s.registerLoading {
 		s.registerLoading = true
 		go func() {
-			s.errorRegister = s.Service.Register()
-			if s.errorRegister != nil {
-				alog.Println(s.errorRegister)
+			if s.Service.CurrentIdentity() == nil {
+				s.errorCreateNewID = s.Service.CreateIdentity(s.inputNewID.Text())
+				if s.errorCreateNewID == nil {
+					s.errorRegister = s.Service.Register()
+					if s.errorRegister != nil {
+						alog.Println(s.errorRegister)
+					}
+				}
+			} else {
+				s.errorRegister = s.Service.Register()
+				if s.errorRegister != nil {
+					alog.Println(s.errorRegister)
+				}
 			}
 			s.registerLoading = false
 			s.Window.Invalidate()
