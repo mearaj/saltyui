@@ -16,7 +16,11 @@ type IconButton struct {
 }
 
 func (b *IconButton) Layout(gtx Gtx) Dim {
-	return material.ButtonLayout(b.Theme, b.Button).Layout(gtx, func(gtx Gtx) Dim {
+	button := b.Button
+	if button == nil {
+		button = &widget.Clickable{}
+	}
+	return material.ButtonLayout(b.Theme, button).Layout(gtx, func(gtx Gtx) Dim {
 		return layout.UniformInset(unit.Dp(12)).Layout(gtx, func(gtx Gtx) Dim {
 			iconAndLabel := layout.Flex{Axis: layout.Horizontal, Alignment: layout.Middle}
 			textIconSpacer := unit.Dp(5)

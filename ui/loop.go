@@ -28,7 +28,7 @@ func Loop(w *app.Window) error {
 					am.WindowHeight = gtx.Constraints.Max.Y
 				}
 
-				am.Layout(gtx, am.Theme)
+				am.Layout(gtx)
 				e.Frame(gtx.Ops)
 			}
 		}

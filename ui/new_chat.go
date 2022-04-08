@@ -18,7 +18,6 @@ type NewChat struct {
 	*AppManager
 	Theme            *material.Theme
 	title            string
-	navItemIcon      *widget.Icon
 	iconNewChat      *widget.Icon
 	newIDInput       component.TextField
 	inputNewChat     component.TextField
@@ -29,7 +28,6 @@ type NewChat struct {
 
 // NewNewChatPage Always call this function to create NewChat page
 func NewNewChatPage(manager *AppManager, th *material.Theme) *NewChat {
-	navItemIcon, _ := widget.NewIcon(icons.CommunicationChat)
 	navIcon, _ := widget.NewIcon(icons.NavigationMenu)
 	iconNewChat, _ := widget.NewIcon(icons.ContentCreate)
 	if th == nil {
@@ -38,18 +36,9 @@ func NewNewChatPage(manager *AppManager, th *material.Theme) *NewChat {
 	return &NewChat{
 		AppManager:     manager,
 		Theme:          th,
-		navItemIcon:    navItemIcon,
 		title:          "New Chat",
 		navigationIcon: navIcon,
 		iconNewChat:    iconNewChat,
-	}
-}
-
-func (nc *NewChat) NavItem() NavItem {
-	return NavItem{
-		Tag:  nc,
-		Name: nc.title,
-		Icon: nc.navItemIcon,
 	}
 }
 

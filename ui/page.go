@@ -4,8 +4,10 @@ import (
 	"gioui.org/app"
 	"gioui.org/font/gofont"
 	"gioui.org/op"
+	"gioui.org/widget"
 	"github.com/mearaj/saltyui/service"
 	"golang.org/x/exp/shiny/materialdesign/colornames"
+	"golang.org/x/exp/shiny/materialdesign/icons"
 	"image/color"
 	"time"
 
@@ -22,7 +24,6 @@ type (
 
 type Page interface {
 	DrawAppBar(gtx Gtx) Dim
-	NavItem() NavItem
 	View
 }
 
@@ -35,7 +36,7 @@ type AppManager struct {
 	*app.Window
 	currentPage Page
 	history     []Page
-	NavDrawer
+	*NavDrawer
 	*ModalNavDrawer
 	NavAnim component.VisibilityAnimation
 	*component.ModalLayer
@@ -78,18 +79,41 @@ func (a *AppManager) PopUp() {
 func (a *AppManager) init() {
 	a.Theme = material.NewTheme(gofont.Collection())
 	a.ModalLayer = component.NewModal()
-	a.NavDrawer = NewNav("Salty UI", "Decentralized Chat App")
-	a.ModalNavDrawer = ModalNavFrom(&a.NavDrawer, a.ModalLayer)
+	navDrwTh := *a.Theme
+	navDrwTh.Bg, navDrwTh.Fg, navDrwTh.ContrastBg, navDrwTh.ContrastFg =
+		a.Theme.ContrastBg, a.Theme.ContrastFg, a.Theme.Bg, a.Theme.Fg
+	a.NavDrawer = NewNav("Salty UI", "Decentralized Chat App", a, &navDrwTh)
+	a.ModalNavDrawer = ModalNavFrom(a.NavDrawer, a.ModalLayer)
 	a.NavAnim = component.VisibilityAnimation{
 		State:    component.Invisible,
 		Duration: time.Millisecond * 250,
 	}
-	appBarPage := NewSettingsPage(a, a.Theme)
-	navDrawerPage := NewNewChatPage(a, a.Theme)
-	a.AddNavItem(appBarPage.NavItem())
-	a.AddNavItem(navDrawerPage.NavItem())
+	settingsPage := NewSettingsPage(a, a.Theme)
+	newChatPage := NewNewChatPage(a, a.Theme)
+	settingsIcon, _ := widget.NewIcon(icons.ActionSettings)
+	newChatIcon, _ := widget.NewIcon(icons.CommunicationChat)
+	settingsNavItem := &NavItem{
+		page:         settingsPage,
+		NavDrawer:    a.NavDrawer,
+		Name:         "Settings",
+		Icon:         settingsIcon,
+		Children:     make([]*NavItem, 0),
+		Theme:        a.Theme,
+		AlphaPalette: &a.AlphaPalette,
+	}
+	newChatNavItem := &NavItem{
+		page:         newChatPage,
+		NavDrawer:    a.NavDrawer,
+		Name:         "New Chat",
+		Icon:         newChatIcon,
+		Children:     make([]*NavItem, 0),
+		Theme:        a.Theme,
+		AlphaPalette: &a.AlphaPalette,
+	}
+	a.AddNavItem(settingsNavItem)
+	a.AddNavItem(newChatNavItem)
 	a.history = make([]Page, 1)
-	a.currentPage = appBarPage
+	a.currentPage = settingsPage
 	a.history[0] = a.currentPage
 	a.Theme = material.NewTheme(gofont.Collection())
 	go func() {
@@ -99,10 +123,14 @@ func (a *AppManager) init() {
 	}()
 }
 
-func (a *AppManager) Layout(gtx Gtx, th *material.Theme) Dim {
-	if a.ModalNavDrawer.NavDestinationChanged() {
-		a.PushPage(gtx, a.ModalNavDrawer.CurrentNavDestination().(Page))
+func (a *AppManager) Layout(gtx Gtx) Dim {
+	if a.Theme == nil {
+		a.Theme = material.NewTheme(gofont.Collection())
 	}
+	th := a.Theme
+	//if a.ModalNavDrawer.NavDestinationChanged() {
+	//	a.PushPage(gtx, a.ModalNavDrawer.CurrentNavDestination().(Page))
+	//}
 	paint.Fill(gtx.Ops, th.Palette.Bg)
 	content := layout.Flexed(1, func(gtx Gtx) Dim {
 		return layout.Flex{}.Layout(gtx,
@@ -115,7 +143,7 @@ func (a *AppManager) Layout(gtx Gtx, th *material.Theme) Dim {
 				if gtx.Constraints.Max.X > 350 {
 					gtx.Constraints.Max.X = 350
 				}
-				return a.NavDrawer.Layout(gtx, &th, &a.NavAnim)
+				return a.NavDrawer.Layout(gtx, &a.NavAnim)
 			}),
 			layout.Flexed(1, func(gtx Gtx) Dim {
 				bar := layout.Rigid(func(gtx Gtx) Dim {

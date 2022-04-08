@@ -7,11 +7,12 @@ import (
 	"gioui.org/widget"
 	"gioui.org/widget/material"
 	"gioui.org/x/component"
+	"github.com/mearaj/saltyui/alog"
+	"go.mills.io/saltyim"
 	"golang.org/x/exp/shiny/materialdesign/colornames"
 	"golang.org/x/exp/shiny/materialdesign/icons"
 	"image"
 	"image/color"
-	"log"
 	"time"
 )
 
@@ -19,24 +20,27 @@ import (
 type Settings struct {
 	widget.List
 	*AppManager
-	Theme              *material.Theme
-	title              string
-	navItemIcon        *widget.Icon
-	iconCreateNewID    *widget.Icon
-	inputNewID         component.TextField
-	buttonNewID        widget.Clickable
-	buttonRegistration widget.Clickable
-	buttonNavigation   widget.Clickable
-	navigationIcon     *widget.Icon
-	iDDetailsAccordion Accordion
-	errorAccordion     Accordion
-	iDDetailsView      IDDetailsView
-	error              error
+	Theme                  *material.Theme
+	title                  string
+	iconCreateNewID        *widget.Icon
+	inputNewID             component.TextField
+	inputNewIDStr          string
+	buttonNewID            widget.Clickable
+	buttonRegistration     widget.Clickable
+	buttonNavigation       widget.Clickable
+	navigationIcon         *widget.Icon
+	iDDetailsAccordion     Accordion
+	errorNewIDAccordion    Accordion
+	errorRegisterAccordion Accordion
+	iDDetailsView          IDDetailsView
+	errorCreateNewID       error
+	errorRegister          error
+	errorParseAddr         error
+	registerLoading        bool
 }
 
 // NewSettingsPage Always call this function to create Settings page
 func NewSettingsPage(manager *AppManager, th *material.Theme) *Settings {
-	navItemIcon, _ := widget.NewIcon(icons.ActionSettings)
 	navIcon, _ := widget.NewIcon(icons.NavigationMenu)
 	iconCreateNewID, _ := widget.NewIcon(icons.ContentCreate)
 	if th == nil {
@@ -47,7 +51,6 @@ func NewSettingsPage(manager *AppManager, th *material.Theme) *Settings {
 	return &Settings{
 		AppManager:      manager,
 		Theme:           th,
-		navItemIcon:     navItemIcon,
 		title:           "Settings",
 		navigationIcon:  navIcon,
 		iconCreateNewID: iconCreateNewID,
@@ -63,22 +66,22 @@ func NewSettingsPage(manager *AppManager, th *material.Theme) *Settings {
 				Duration: time.Millisecond * 250,
 			},
 		},
-		errorAccordion: Accordion{
+		errorNewIDAccordion: Accordion{
 			Theme: &errorTh,
-			Title: "Error",
+			Title: "Create New ID Error",
 			Animation: component.VisibilityAnimation{
 				State:    component.Visible,
 				Duration: time.Millisecond * 250,
 			},
 		},
-	}
-}
-
-func (s *Settings) NavItem() NavItem {
-	return NavItem{
-		Tag:  s,
-		Name: s.title,
-		Icon: s.navItemIcon,
+		errorRegisterAccordion: Accordion{
+			Theme: &errorTh,
+			Title: "Register Error",
+			Animation: component.VisibilityAnimation{
+				State:    component.Visible,
+				Duration: time.Millisecond * 250,
+			},
+		},
 	}
 }
 
@@ -94,6 +97,13 @@ func (s *Settings) Layout(gtx Gtx) Dim {
 	if s.Theme == nil {
 		s.Theme = material.NewTheme(gofont.Collection())
 	}
+	if s.inputNewID.Text() != s.inputNewIDStr {
+		s.errorRegister = nil
+		s.errorCreateNewID = nil
+		s.errorParseAddr = nil
+	}
+	_, s.errorParseAddr = saltyim.ParseAddr(s.inputNewID.Text())
+	s.inputNewIDStr = s.inputNewID.Text()
 	th := s.Theme
 	return layout.UniformInset(unit.Dp(16)).Layout(gtx, func(gtx layout.Context) layout.Dimensions {
 		return layout.Flex{Axis: layout.Vertical}.Layout(gtx,
@@ -114,13 +124,19 @@ func (s *Settings) Layout(gtx Gtx) Dim {
 							return s.drawIDDetailsAccordion(gtx)
 						}),
 						layout.Rigid(func(gtx Gtx) Dim {
-							return s.drawErrorAccordion(gtx)
+							return s.drawErrorNewIDAccordion(gtx)
 						}),
 						layout.Rigid(func(gtx Gtx) Dim {
 							return layout.Spacer{Height: unit.Dp(32)}.Layout(gtx)
 						}),
 						layout.Rigid(func(gtx Gtx) Dim {
 							return s.drawRegistrationButton(gtx)
+						}),
+						layout.Rigid(func(gtx Gtx) Dim {
+							return layout.Spacer{Height: unit.Dp(32)}.Layout(gtx)
+						}),
+						layout.Rigid(func(gtx Gtx) Dim {
+							return s.drawErrorRegisterAccordion(gtx)
 						}),
 					)
 				})
@@ -179,21 +195,29 @@ func (s *Settings) drawNewIDTextField(gtx Gtx) Dim {
 	labelText := "Enter New ID"
 	labelHintText := "User in the form user@domain"
 	buttonText := "Create New ID"
+	var button *widget.Clickable
+	var th *material.Theme
+	if s.errorParseAddr != nil {
+		button = &widget.Clickable{}
+		th = material.NewTheme(gofont.Collection())
+		th.ContrastBg = color.NRGBA(colornames.Grey500)
+	} else {
+		button = &s.buttonNewID
+		th = s.Theme
+	}
 	ib := IconButton{
-		Theme:  s.Theme,
-		Button: &s.buttonNewID,
+		Theme:  th,
+		Button: button,
 		Icon:   s.iconCreateNewID,
 		Text:   buttonText,
 	}
-	if s.buttonNewID.Clicked() {
-		s.error = s.Service.CreateIdentity(s.inputNewID.Text())
-		if s.error != nil {
-			s.errorAccordion.Animation.Appear(gtx.Now)
-		} else {
-			s.iDDetailsAccordion.Animation.Appear(gtx.Now)
+	if button.Clicked() {
+		s.errorCreateNewID = s.Service.CreateIdentity(s.inputNewID.Text())
+		if s.errorCreateNewID != nil {
+			s.errorNewIDAccordion.Animation.Appear(gtx.Now)
 		}
 	}
-	return drawFormFieldRowWithLabel(gtx, s.Theme, labelText, labelHintText, &s.inputNewID, &ib)
+	return drawFormFieldRowWithLabel(gtx, th, labelText, labelHintText, &s.inputNewID, &ib)
 }
 
 func (s *Settings) drawIDDetailsAccordion(gtx Gtx) (d Dim) {
@@ -208,28 +232,54 @@ func (s *Settings) drawIDDetailsAccordion(gtx Gtx) (d Dim) {
 	return d
 }
 
-func (s *Settings) drawErrorAccordion(gtx Gtx) (d Dim) {
-	if s.Service.CurrentIdentity() == nil && s.error != nil {
+func (s *Settings) drawErrorNewIDAccordion(gtx Gtx) (d Dim) {
+	if s.Service.CurrentIdentity() == nil && s.errorCreateNewID != nil {
 		errView := ErrorView{}
-		s.errorAccordion.Child = &errView
-		errView.Error = s.error.Error()
-		return s.errorAccordion.Layout(gtx)
+		s.errorNewIDAccordion.Child = &errView
+		errView.Error = s.errorCreateNewID.Error()
+		return s.errorNewIDAccordion.Layout(gtx)
 	}
 	return d
 }
 
 func (s *Settings) drawRegistrationButton(gtx Gtx) Dim {
 	buttonText := "Register with salty@domain for above id"
+	var button *widget.Clickable
+	var th *material.Theme
+	if s.errorParseAddr != nil {
+		button = &widget.Clickable{}
+		th = material.NewTheme(gofont.Collection())
+		th.ContrastBg = color.NRGBA(colornames.Grey500)
+	} else {
+		button = &s.buttonRegistration
+		th = s.Theme
+	}
 	ib := IconButton{
-		Theme:  s.Theme,
-		Button: &s.buttonRegistration,
+		Theme:  th,
+		Button: button,
 		Icon:   s.iconCreateNewID,
 		Text:   buttonText,
 	}
-	if s.Service.CurrentIdentity() != nil {
-		if s.buttonRegistration.Clicked() {
-			log.Println("Clicked")
-		}
+	if s.Service.CurrentIdentity() != nil && button.Clicked() && !s.registerLoading {
+		s.registerLoading = true
+		go func() {
+			s.errorRegister = s.Service.Register()
+			if s.errorRegister != nil {
+				alog.Println(s.errorRegister)
+			}
+			s.registerLoading = false
+			s.Window.Invalidate()
+		}()
 	}
 	return ib.Layout(gtx)
+}
+
+func (s *Settings) drawErrorRegisterAccordion(gtx Gtx) (d Dim) {
+	if s.errorRegister != nil {
+		errView := ErrorView{}
+		s.errorRegisterAccordion.Child = &errView
+		errView.Error = s.errorRegister.Error()
+		return s.errorRegisterAccordion.Layout(gtx)
+	}
+	return d
 }
