@@ -6,9 +6,9 @@ A cross-platform, decentralized, chat app based on [SaltyIM](https://git.mills.i
 - [x] WebAssembly (Modern Browsers)
 - [x] Linux
 - [x] Windows
-- [x] macOS
+- [x] macOS (Not Tested, Developer Needed)
 - [x] Android
-- [x] iOS / tvOS
+- [x] iOS / tvOS (Not Tested, Developer Needed)
 
 ## Prerequisites
 Before continuing, please make sure you have the prerequisites from the following

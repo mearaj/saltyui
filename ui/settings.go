@@ -37,6 +37,7 @@ type Settings struct {
 	errorRegister          error
 	errorParseAddr         error
 	registerLoading        bool
+	loadedFromFile         bool
 }
 
 // NewSettingsPage Always call this function to create Settings page
@@ -96,6 +97,14 @@ func (s *Settings) Overflow() []component.OverflowAction {
 func (s *Settings) Layout(gtx Gtx) Dim {
 	if s.Theme == nil {
 		s.Theme = material.NewTheme(gofont.Collection())
+	}
+	if !s.loadedFromFile {
+		s.loadedFromFile = true
+		id := s.Service.CurrentIdentity()
+		if id != nil {
+			s.inputNewIDStr = id.Addr().String()
+			s.inputNewID.SetText(s.inputNewIDStr)
+		}
 	}
 	if s.inputNewID.Text() != s.inputNewIDStr {
 		s.errorRegister = nil
@@ -263,7 +272,7 @@ func (s *Settings) drawRegistrationButton(gtx Gtx) Dim {
 	if button.Clicked() && !s.registerLoading {
 		s.registerLoading = true
 		go func() {
-			if s.Service.CurrentIdentity() == nil {
+			if s.Service.CurrentIdentity() == nil || s.inputNewID.Text() != s.Service.Address() {
 				s.errorCreateNewID = s.Service.CreateIdentity(s.inputNewID.Text())
 				if s.errorCreateNewID == nil {
 					s.errorRegister = s.Service.Register()

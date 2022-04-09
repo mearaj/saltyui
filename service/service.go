@@ -2,8 +2,8 @@ package service
 
 import (
 	"errors"
+	"github.com/mearaj/saltyui/alog"
 	"go.mills.io/saltyim"
-	"time"
 )
 
 // Service Always call NewService function to create Service
@@ -11,6 +11,7 @@ type Service struct {
 	loaded       bool
 	currentID    *saltyim.Identity
 	isRegistered bool
+	address      string
 }
 
 // NewService Always call this function to create Service
@@ -22,7 +23,7 @@ func NewService() *Service {
 
 func (s *Service) init() {
 	go func() {
-		time.Sleep(time.Millisecond * 250)
+		_ = s.loadCurrentIdentity()
 		s.loaded = true
 	}()
 }
@@ -30,15 +31,29 @@ func (s *Service) init() {
 func (s *Service) Loaded() bool {
 	return s.loaded
 }
+func (s *Service) clearCredentials() {
+	s.currentID = nil
+	s.isRegistered = false
+	s.address = ""
+}
 
 func (s *Service) CreateIdentity(address string) (err error) {
 	addr, err := saltyim.ParseAddr(address)
 	if err != nil {
-		s.currentID = nil
-		s.isRegistered = false
+		s.clearCredentials()
 		return err
 	} else {
 		s.currentID, err = saltyim.CreateIdentity(saltyim.WithIdentityAddr(addr))
+		if err != nil {
+			s.clearCredentials()
+		} else {
+			s.address = address
+			err = s.saveCurrentIdentity()
+			if err != nil {
+				alog.Println(err)
+				err = nil //
+			}
+		}
 	}
 	return err // err is expected to be nil here
 }
@@ -70,4 +85,7 @@ func (s *Service) Register() (err error) {
 
 func (s *Service) IsRegistered() bool {
 	return s.currentID != nil && s.isRegistered
+}
+func (s *Service) Address() string {
+	return s.address
 }
