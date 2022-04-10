@@ -30,10 +30,27 @@ func drawFormFieldRowWithLabel(gtx Gtx, th *material.Theme, labelText string, la
 			)
 		}),
 		layout.Rigid(func(gtx Gtx) Dim {
-			return layout.Flex{
-				Axis:      layout.Horizontal,
-				Spacing:   layout.SpaceBetween,
-				Alignment: layout.End}.Layout(gtx,
+			if gtx.Constraints.Max.X < 600 {
+				flex := layout.Flex{Axis: layout.Vertical, Spacing: layout.SpaceEnd, Alignment: layout.Start}
+				return flex.Layout(gtx,
+					layout.Rigid(func(gtx Gtx) Dim {
+						return textField.Layout(gtx,
+							th, labelHintText)
+					}),
+					layout.Rigid(func(gtx Gtx) Dim {
+						return layout.Spacer{
+							Height: unit.Dp(16),
+						}.Layout(gtx)
+					}),
+					layout.Rigid(func(gtx Gtx) Dim {
+						gtx.Constraints.Min.X = 180
+						return button.Layout(gtx)
+					}),
+				)
+			}
+
+			flex := layout.Flex{Spacing: layout.SpaceBetween, Alignment: layout.End}
+			return flex.Layout(gtx,
 				layout.Flexed(1, func(gtx Gtx) Dim {
 					return textField.Layout(gtx,
 						th, labelHintText)

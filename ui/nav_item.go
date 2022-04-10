@@ -19,16 +19,28 @@ import (
 )
 
 type NavItem struct {
-	*component.AlphaPalette
+	component.AlphaPalette
 	page Page
 	*NavDrawer
 	Name     string
 	Icon     *widget.Icon
-	Children []*NavItem
+	children []*NavItem
 	hovering bool
 	widget.Clickable
 	Animation component.VisibilityAnimation
 	*material.Theme
+}
+
+func NewNavItem(page Page, drawer *NavDrawer, name string, icon *widget.Icon, children []*NavItem, th *material.Theme, palette component.AlphaPalette) *NavItem {
+	return &NavItem{
+		page:         page,
+		NavDrawer:    drawer,
+		Name:         name,
+		Icon:         icon,
+		children:     children,
+		Theme:        th,
+		AlphaPalette: palette,
+	}
 }
 
 func (n *NavItem) Layout(gtx Gtx) Dim {
@@ -42,7 +54,6 @@ func (n *NavItem) Layout(gtx Gtx) Dim {
 	}
 	if n.Clicked() && n.NavDrawer != nil {
 		n.SetSelectedItem(n)
-		n.AppManager.PushPage(gtx, n.page)
 	}
 	events := gtx.Events(n)
 	for _, event := range events {
@@ -59,57 +70,57 @@ func (n *NavItem) Layout(gtx Gtx) Dim {
 		}
 	}
 
-	d := layout.Inset{Left: unit.Dp(12), Bottom: unit.Dp(6)}.Layout(gtx, func(gtx Gtx) Dim {
-		d := material.Clickable(gtx, &n.Clickable, func(gtx Gtx) Dim {
-			macro := op.Record(gtx.Ops)
-			d := n.layoutContent(gtx, th)
-			call := macro.Stop()
-			pushOps := pointer.PassOp{}.Push(gtx.Ops)
-			defer pushOps.Pop()
-			defer clip.Rect(image.Rectangle{
-				Max: d.Size,
-			}).Push(gtx.Ops).Pop()
-			pointer.InputOp{
-				Tag:   n,
-				Types: pointer.Enter | pointer.Leave,
-			}.Add(gtx.Ops)
-			d = layout.Stack{}.Layout(gtx,
-				layout.Expanded(func(gtx Gtx) Dim { return n.layoutBackground(gtx, d.Size) }),
-				layout.Stacked(func(gtx Gtx) Dim {
-					call.Add(gtx.Ops)
-					return d
-				}),
-			)
-			return d
-		})
-		if len(n.Children) == 0 {
-			return d
-		}
-		if !n.Animation.Visible() {
-			return d
-		}
-
-		children := make([]layout.FlexChild, 0, len(n.Children))
-		children = append(children, layout.Rigid(
-			func(gtx Gtx) Dim {
-				progress := n.Animation.Revealed(gtx)
-				height := int(math.Round(float64(float32(d.Size.Y) * progress)))
-				d.Size.Y = height
+	d := material.Clickable(gtx, &n.Clickable, func(gtx Gtx) Dim {
+		macro := op.Record(gtx.Ops)
+		d := n.layoutContent(gtx, th)
+		call := macro.Stop()
+		pushOps := pointer.PassOp{}.Push(gtx.Ops)
+		defer pushOps.Pop()
+		defer clip.Rect(image.Rectangle{
+			Max: d.Size,
+		}).Push(gtx.Ops).Pop()
+		pointer.InputOp{
+			Tag:   n,
+			Types: pointer.Enter | pointer.Leave,
+		}.Add(gtx.Ops)
+		d = layout.Stack{}.Layout(gtx,
+			layout.Expanded(func(gtx Gtx) Dim { return n.layoutBackground(gtx, d.Size) }),
+			layout.Stacked(func(gtx Gtx) Dim {
+				call.Add(gtx.Ops)
 				return d
-			}))
-		for _, child := range n.Children {
-			children = append(children, layout.Rigid(
-				func(gtx Gtx) Dim {
-					return child.Layout(gtx)
-				}))
-		}
-
-		d = layout.Inset{Top: unit.Dp(4), Left: unit.Dp(24)}.Layout(gtx, func(gtx Gtx) Dim {
-			return layout.Flex{Axis: layout.Vertical}.Layout(gtx, children...)
-		})
+			}),
+		)
 		return d
 	})
+	if len(n.Children()) == 0 {
+		return d
+	}
+	if !n.Animation.Visible() {
+		return d
+	}
 
+	children := make([]layout.FlexChild, 0, len(n.Children()))
+	children = append(children, layout.Rigid(
+		func(gtx Gtx) Dim {
+			progress := n.Animation.Revealed(gtx)
+			height := int(math.Round(float64(float32(d.Size.Y) * progress)))
+			d.Size.Y = height
+			return d
+		}))
+	for _, child := range n.Children() {
+		children = append(children, layout.Rigid(func(gtx Gtx) Dim {
+			inset := layout.Inset{Top: unit.Dp(4), Left: unit.Dp(16)}
+			return inset.Layout(gtx,
+				func(gtx Gtx) Dim {
+					return child.Layout(gtx)
+				},
+			)
+		}))
+	}
+
+	d = layout.Inset{Left: unit.Dp(20)}.Layout(gtx, func(gtx Gtx) Dim {
+		return layout.Flex{Axis: layout.Vertical}.Layout(gtx, children...)
+	})
 	return d
 }
 
@@ -121,9 +132,9 @@ func (n *NavItem) layoutContent(gtx Gtx, th *material.Theme) Dim {
 	}
 	d := layout.Inset{
 		Top:    unit.Dp(6),
-		Right:  unit.Dp(24),
+		Right:  unit.Dp(12),
 		Bottom: unit.Dp(6),
-		Left:   unit.Dp(24),
+		Left:   unit.Dp(12),
 	}.Layout(gtx, func(gtx Gtx) Dim {
 		return layout.Flex{Alignment: layout.Middle}.Layout(gtx,
 			layout.Flexed(1.0, func(gtx layout.Context) layout.Dimensions {
@@ -148,10 +159,10 @@ func (n *NavItem) layoutContent(gtx Gtx, th *material.Theme) Dim {
 				)
 			}),
 			layout.Rigid(func(gtx layout.Context) layout.Dimensions {
-				if len(n.Children) != 0 {
+				if len(n.Children()) != 0 {
 					affine := f32.Affine2D{}
 					ic, _ := widget.NewIcon(icons.NavigationChevronRight)
-					cl := th.Fg
+					cl := th.Bg
 					cl.A = 200
 					origin := f32.Pt(12, 12)
 					rotation := float32(0)
@@ -199,4 +210,15 @@ func (n *NavItem) layoutBackground(gtx Gtx, size image.Point) Dim {
 
 func (n *NavItem) Page() Page {
 	return n.page
+}
+
+func (n *NavItem) Children() []*NavItem {
+	return n.children
+}
+
+func (n *NavItem) AddChild(item *NavItem) {
+	if n.children == nil {
+		n.children = make([]*NavItem, 0, 1)
+	}
+	n.children = append(n.children, item)
 }

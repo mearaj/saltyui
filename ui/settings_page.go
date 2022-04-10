@@ -16,8 +16,8 @@ import (
 	"time"
 )
 
-// Settings Always call NewSettingsPage function to create Settings page
-type Settings struct {
+// SettingsPage Always call NewSettingsPage function to create SettingsPage page
+type SettingsPage struct {
 	widget.List
 	*AppManager
 	Theme                  *material.Theme
@@ -40,8 +40,8 @@ type Settings struct {
 	loadedFromFile         bool
 }
 
-// NewSettingsPage Always call this function to create Settings page
-func NewSettingsPage(manager *AppManager, th *material.Theme) *Settings {
+// NewSettingsPage Always call this function to create SettingsPage page
+func NewSettingsPage(manager *AppManager, th *material.Theme) *SettingsPage {
 	navIcon, _ := widget.NewIcon(icons.NavigationMenu)
 	iconCreateNewID, _ := widget.NewIcon(icons.ContentCreate)
 	if th == nil {
@@ -49,10 +49,10 @@ func NewSettingsPage(manager *AppManager, th *material.Theme) *Settings {
 	}
 	errorTh := *th
 	errorTh.ContrastBg = color.NRGBA(colornames.Red500)
-	return &Settings{
+	return &SettingsPage{
 		AppManager:      manager,
 		Theme:           th,
-		title:           "Settings",
+		title:           "SettingsPage",
 		navigationIcon:  navIcon,
 		iconCreateNewID: iconCreateNewID,
 		iDDetailsView: IDDetailsView{
@@ -86,18 +86,19 @@ func NewSettingsPage(manager *AppManager, th *material.Theme) *Settings {
 	}
 }
 
-func (s *Settings) Actions() []component.AppBarAction {
+func (s *SettingsPage) Actions() []component.AppBarAction {
 	return []component.AppBarAction{}
 }
 
-func (s *Settings) Overflow() []component.OverflowAction {
+func (s *SettingsPage) Overflow() []component.OverflowAction {
 	return []component.OverflowAction{}
 }
 
-func (s *Settings) Layout(gtx Gtx) Dim {
+func (s *SettingsPage) Layout(gtx Gtx) Dim {
 	if s.Theme == nil {
 		s.Theme = material.NewTheme(gofont.Collection())
 	}
+	th := s.Theme
 	if !s.loadedFromFile {
 		s.loadedFromFile = true
 		id := s.Service.CurrentIdentity()
@@ -113,7 +114,6 @@ func (s *Settings) Layout(gtx Gtx) Dim {
 	}
 	_, s.errorParseAddr = saltyim.ParseAddr(s.inputNewID.Text())
 	s.inputNewIDStr = s.inputNewID.Text()
-	th := s.Theme
 	return layout.UniformInset(unit.Dp(16)).Layout(gtx, func(gtx layout.Context) layout.Dimensions {
 		return layout.Flex{Axis: layout.Vertical}.Layout(gtx,
 			layout.Flexed(1.0, func(gtx Gtx) Dim {
@@ -131,6 +131,9 @@ func (s *Settings) Layout(gtx Gtx) Dim {
 						}),
 						layout.Rigid(func(gtx Gtx) Dim {
 							return s.drawIDDetailsAccordion(gtx)
+						}),
+						layout.Rigid(func(gtx Gtx) Dim {
+							return layout.Spacer{Height: unit.Dp(32)}.Layout(gtx)
 						}),
 						layout.Rigid(func(gtx Gtx) Dim {
 							return s.drawErrorNewIDAccordion(gtx)
@@ -154,7 +157,7 @@ func (s *Settings) Layout(gtx Gtx) Dim {
 	})
 }
 
-func (s *Settings) DrawAppBar(gtx Gtx) Dim {
+func (s *SettingsPage) DrawAppBar(gtx Gtx) Dim {
 	gtx.Constraints.Max.Y = gtx.Px(unit.Dp(56))
 	th := s.Theme
 	if s.buttonNavigation.Clicked() {
@@ -200,7 +203,7 @@ func (s *Settings) DrawAppBar(gtx Gtx) Dim {
 	return Dim{Size: gtx.Constraints.Max}
 }
 
-func (s *Settings) drawNewIDTextField(gtx Gtx) Dim {
+func (s *SettingsPage) drawNewIDTextField(gtx Gtx) Dim {
 	labelText := "Enter New ID"
 	labelHintText := "User in the form user@domain"
 	buttonText := "Create New ID"
@@ -226,10 +229,10 @@ func (s *Settings) drawNewIDTextField(gtx Gtx) Dim {
 			s.errorNewIDAccordion.Animation.Appear(gtx.Now)
 		}
 	}
-	return drawFormFieldRowWithLabel(gtx, th, labelText, labelHintText, &s.inputNewID, &ib)
+	return drawFormFieldRowWithLabel(gtx, s.Theme, labelText, labelHintText, &s.inputNewID, &ib)
 }
 
-func (s *Settings) drawIDDetailsAccordion(gtx Gtx) (d Dim) {
+func (s *SettingsPage) drawIDDetailsAccordion(gtx Gtx) (d Dim) {
 	if s.Service.CurrentIdentity() != nil {
 		if s.iDDetailsAccordion.Child == nil {
 			s.iDDetailsAccordion.Child = &s.iDDetailsView
@@ -241,7 +244,7 @@ func (s *Settings) drawIDDetailsAccordion(gtx Gtx) (d Dim) {
 	return d
 }
 
-func (s *Settings) drawErrorNewIDAccordion(gtx Gtx) (d Dim) {
+func (s *SettingsPage) drawErrorNewIDAccordion(gtx Gtx) (d Dim) {
 	if s.Service.CurrentIdentity() == nil && s.errorCreateNewID != nil {
 		errView := ErrorView{}
 		s.errorNewIDAccordion.Child = &errView
@@ -251,7 +254,7 @@ func (s *Settings) drawErrorNewIDAccordion(gtx Gtx) (d Dim) {
 	return d
 }
 
-func (s *Settings) drawRegistrationButton(gtx Gtx) Dim {
+func (s *SettingsPage) drawRegistrationButton(gtx Gtx) Dim {
 	buttonText := "Register with salty@domain for above id"
 	var button *widget.Clickable
 	var th *material.Theme
@@ -277,13 +280,13 @@ func (s *Settings) drawRegistrationButton(gtx Gtx) Dim {
 				if s.errorCreateNewID == nil {
 					s.errorRegister = s.Service.Register()
 					if s.errorRegister != nil {
-						alog.Println(s.errorRegister)
+						alog.Logger().Println(s.errorRegister)
 					}
 				}
 			} else {
 				s.errorRegister = s.Service.Register()
 				if s.errorRegister != nil {
-					alog.Println(s.errorRegister)
+					alog.Logger().Println(s.errorRegister)
 				}
 			}
 			s.registerLoading = false
@@ -293,7 +296,7 @@ func (s *Settings) drawRegistrationButton(gtx Gtx) Dim {
 	return ib.Layout(gtx)
 }
 
-func (s *Settings) drawErrorRegisterAccordion(gtx Gtx) (d Dim) {
+func (s *SettingsPage) drawErrorRegisterAccordion(gtx Gtx) (d Dim) {
 	if s.errorRegister != nil {
 		errView := ErrorView{}
 		s.errorRegisterAccordion.Child = &errView

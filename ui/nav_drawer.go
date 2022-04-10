@@ -8,8 +8,6 @@ import (
 	"gioui.org/widget"
 	"gioui.org/widget/material"
 	"gioui.org/x/component"
-	"image"
-	"image/color"
 	"time"
 )
 
@@ -24,11 +22,12 @@ type NavDrawer struct {
 	Subtitle     string
 	Anchor       component.VerticalAnchorPosition
 	selectedItem *NavItem
-	items        []*NavItem
+	navItems     []*NavItem
 	navList      widget.List
 	NavAnim      component.VisibilityAnimation
 	*material.Theme
 	*AppManager
+	scrollList widget.List
 }
 
 func NewNav(title, subtitle string, manager *AppManager, th *material.Theme) *NavDrawer {
@@ -45,32 +44,32 @@ func NewNav(title, subtitle string, manager *AppManager, th *material.Theme) *Na
 	return &m
 }
 
-func (m *NavDrawer) AddNavItem(item *NavItem) {
-	item.AlphaPalette = &m.AlphaPalette
-	m.items = append(m.items, item)
-	if len(m.items) == 1 {
-		m.items[0].selectedItem = m.items[0]
+func (n *NavDrawer) AddNavItem(item *NavItem) {
+	item.AlphaPalette = n.AlphaPalette
+	n.navItems = append(n.navItems, item)
+	if len(n.navItems) == 1 {
+		n.navItems[0].selectedItem = n.navItems[0]
 	}
 }
 
-func (m *NavDrawer) Layout(gtx Gtx, anim *component.VisibilityAnimation) Dim {
-	if m.Theme == nil {
-		m.Theme = material.NewTheme(gofont.Collection())
+func (n *NavDrawer) Layout(gtx Gtx, anim *component.VisibilityAnimation) Dim {
+	if n.Theme == nil {
+		n.Theme = material.NewTheme(gofont.Collection())
 	}
-	th := m.Theme
+	th := n.Theme
 	sheet := component.NewSheet()
 	return sheet.Layout(gtx, th, anim, func(gtx Gtx) Dim {
-		return m.LayoutContents(gtx, anim)
+		return n.LayoutContents(gtx, anim)
 	})
 }
 
-func (m *NavDrawer) LayoutContents(gtx Gtx, anim *component.VisibilityAnimation) Dim {
-	th := m.Theme
+func (n *NavDrawer) LayoutContents(gtx Gtx, anim *component.VisibilityAnimation) Dim {
+	th := n.Theme
 	if !anim.Visible() {
 		return Dim{}
 	}
 	spacing := layout.SpaceEnd
-	if m.Anchor == component.Bottom {
+	if n.Anchor == component.Bottom {
 		spacing = layout.SpaceStart
 	}
 
@@ -80,105 +79,69 @@ func (m *NavDrawer) LayoutContents(gtx Gtx, anim *component.VisibilityAnimation)
 	}.Layout(gtx,
 		layout.Rigid(func(gtx Gtx) Dim {
 			return layout.Inset{
-				Left:   unit.Dp(16),
-				Bottom: unit.Dp(18),
+				Left: unit.Dp(16),
 			}.Layout(gtx, func(gtx Gtx) Dim {
 				return layout.Flex{Axis: layout.Vertical}.Layout(gtx,
 					layout.Rigid(func(gtx Gtx) Dim {
 						gtx.Constraints.Max.Y = gtx.Px(unit.Dp(36))
 						gtx.Constraints.Min = gtx.Constraints.Max
-						title := material.Label(th, unit.Dp(18), m.Title)
+						title := material.Label(th, unit.Dp(18), n.Title)
 						title.Font.Weight = text.Bold
 						return layout.SW.Layout(gtx, title.Layout)
 					}),
 					layout.Rigid(func(gtx Gtx) Dim {
 						gtx.Constraints.Max.Y = gtx.Px(unit.Dp(20))
 						gtx.Constraints.Min = gtx.Constraints.Max
-						return layout.SW.Layout(gtx, material.Label(th, unit.Dp(12), m.Subtitle).Layout)
+						return layout.SW.Layout(gtx, material.Label(th, unit.Dp(12), n.Subtitle).Layout)
 					}),
 				)
 			})
 		}),
 		layout.Flexed(1, func(gtx Gtx) Dim {
-			return m.layoutNavList(gtx, th, anim)
+			return n.layoutNavList(gtx, th, anim)
 		}),
 	)
 	return Dim{Size: gtx.Constraints.Max}
 }
 
-func (m *NavDrawer) layoutNavList(gtx Gtx, th *material.Theme, anim *component.VisibilityAnimation) Dim {
-	m.navList.Axis = layout.Vertical
-	return material.List(th, &m.navList).Layout(gtx, len(m.items), func(gtx Gtx, index int) Dim {
-		dimensions := m.items[index].Layout(gtx)
-		return dimensions
+// layoutNavList draw root nav items here
+func (n *NavDrawer) layoutNavList(gtx Gtx, th *material.Theme, anim *component.VisibilityAnimation) Dim {
+	n.navList.Axis = layout.Vertical
+	inset := layout.Inset{Left: unit.Dp(16), Top: unit.Dp(16), Right: unit.Dp(6)}
+	xConstraints := gtx.Constraints.Max.X
+	dim := material.List(th, &n.scrollList).Layout(gtx, 1, func(gtx Gtx, index int) Dim {
+		return inset.Layout(gtx, func(gtx Gtx) Dim {
+			gtx.Constraints.Max.X = xConstraints - 24.0
+			dim := material.List(th, &n.navList).Layout(gtx, len(n.navItems), func(gtx Gtx, index int) Dim {
+				inset := layout.Inset{Top: unit.Dp(8)}
+				dim := inset.Layout(gtx, func(gtx Gtx) Dim {
+					return n.navItems[index].Layout(gtx)
+				})
+				return dim
+			})
+			return dim
+		})
 	})
+	return dim
 }
-func (m *NavDrawer) SetSelectedItem(item *NavItem) {
-	m.selectedItem = item
+func (n *NavDrawer) SetSelectedItem(item *NavItem) {
+	n.selectedItem = item
+	item.Animation.ToggleVisibility(time.Now())
+	n.AppManager.PushPage(item.Page())
 }
-func (m *NavDrawer) SelectedNavItem() *NavItem {
-	return m.selectedItem
+func (n *NavDrawer) SelectedNavItem() *NavItem {
+	return n.selectedItem
 }
 
-func (m *NavDrawer) SetNavDestination(page Page) {
-	for _, item := range m.items {
+func (n *NavDrawer) SetNavDestination(page Page) {
+	for _, item := range n.navItems {
 		if item.Page() == page {
-			m.SetSelectedItem(item)
+			n.SetSelectedItem(item)
 			break
 		}
 	}
 }
 
-type ModalNavDrawer struct {
-	*NavDrawer
-	sheet *component.ModalSheet
-}
-
-// NewModalNav configures a modal navigation drawer that will render itself into the provided ModalLayer
-func NewModalNav(modal *component.ModalLayer, title, subtitle string, manager *AppManager, theme *material.Theme) *ModalNavDrawer {
-	nav := NewNav(title, subtitle, manager, theme)
-	return ModalNavFrom(nav, modal)
-}
-
-func ModalNavFrom(nav *NavDrawer, modal *component.ModalLayer) *ModalNavDrawer {
-	m := &ModalNavDrawer{}
-	modalSheet := component.NewModalSheet(modal)
-	m.NavDrawer = nav
-	m.sheet = modalSheet
-	return m
-}
-
-func (m *ModalNavDrawer) Layout() Dim {
-	m.sheet.LayoutModal(func(gtx Gtx, th *material.Theme, anim *component.VisibilityAnimation) Dim {
-		PaintRect(gtx, gtx.Constraints.Max, th.ContrastBg)
-		dims := m.NavDrawer.LayoutContents(gtx, anim)
-		// FixMe:
-		//if m.selectedChanged {
-		//	anim.Disappear(gtx.Now)
-		//}
-		return dims
-	})
-	return Dim{}
-}
-
-func (m *ModalNavDrawer) ToggleVisibility(when time.Time) {
-	m.Layout()
-	m.sheet.ToggleVisibility(when)
-}
-
-func (m *ModalNavDrawer) Appear(when time.Time) {
-	m.Layout()
-	m.sheet.Appear(when)
-}
-
-func (m *ModalNavDrawer) Disappear(when time.Time) {
-	m.Layout()
-	m.sheet.Disappear(when)
-}
-
-func PaintRect(gtx Gtx, size image.Point, fill color.NRGBA) {
-	component.Rect{
-		Color: fill,
-		Size:  size,
-	}.Layout(gtx)
+func (n *NavDrawer) NavItems() []*NavItem {
+	return n.navItems
 }

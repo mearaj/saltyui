@@ -1,3 +1,3 @@
 package service
 
-const AppName = "salty"
+const AppCfgDirName = "salty"

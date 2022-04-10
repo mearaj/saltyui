@@ -16,3 +16,5 @@
 
 .idea
 /saltyui
+*.apk
+*.apk.idsig

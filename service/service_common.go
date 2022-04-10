@@ -23,7 +23,7 @@ func (s *Service) loadCurrentIdentity() (err error) {
 		return err
 	}
 	userFileName := fmt.Sprintf("%s.key", usr.Username)
-	appDir := filepath.Join(configDir, AppName, userFileName)
+	appDir := filepath.Join(configDir, AppCfgDirName, userFileName)
 	contents, err := ioutil.ReadFile(appDir)
 	if err != nil {
 		return err
@@ -50,7 +50,7 @@ func (s *Service) saveCurrentIdentity() error {
 		return err
 	}
 	userFileName := fmt.Sprintf("%s.key", usr.Username)
-	appDir := filepath.Join(configDir, AppName, userFileName)
+	appDir := filepath.Join(configDir, AppCfgDirName, userFileName)
 	contentsBytes := currentId.Contents()
 	err = os.WriteFile(appDir, contentsBytes, 0644)
 	if err != nil {

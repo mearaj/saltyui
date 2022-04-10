@@ -11,7 +11,7 @@ func main() {
 	go func() {
 		w := app.NewWindow(app.Title("Salty UI"))
 		if err := ui.Loop(w); err != nil {
-			alog.Fatal(err)
+			alog.Logger().Fatal(err)
 		}
 		os.Exit(0)
 	}()

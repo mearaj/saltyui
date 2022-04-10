@@ -12,11 +12,12 @@ type Service struct {
 	currentID    *saltyim.Identity
 	isRegistered bool
 	address      string
+	clients      []*saltyim.Addr
 }
 
 // NewService Always call this function to create Service
 func NewService() *Service {
-	s := Service{}
+	s := Service{clients: make([]*saltyim.Addr, 0)}
 	s.init()
 	return &s
 }
@@ -50,7 +51,7 @@ func (s *Service) CreateIdentity(address string) (err error) {
 			s.address = address
 			err = s.saveCurrentIdentity()
 			if err != nil {
-				alog.Println(err)
+				alog.Logger().Println(err)
 				err = nil //
 			}
 		}
@@ -88,4 +89,38 @@ func (s *Service) IsRegistered() bool {
 }
 func (s *Service) Address() string {
 	return s.address
+}
+func (s *Service) GetClient(addr string) *saltyim.Addr {
+	if len(s.clients) == 0 {
+		return nil
+	}
+	for _, cl := range s.clients {
+		if cl != nil && cl.String() == addr {
+			return cl
+		}
+	}
+	return nil
+}
+
+func (s *Service) NewChat(addrStr string) (err error) {
+	var addr *saltyim.Addr
+	if s.clients == nil {
+		s.clients = make([]*saltyim.Addr, 0)
+	} else {
+		if cl := s.GetClient(addrStr); cl != nil {
+			return errors.New("client already exist")
+		}
+	}
+	addr, err = saltyim.LookupAddr(addrStr)
+	if err != nil {
+		return err
+	}
+	s.clients = append(s.clients, addr)
+	return err
+}
+func (s *Service) Clients() []*saltyim.Addr {
+	if s.clients == nil {
+		s.clients = make([]*saltyim.Addr, 0)
+	}
+	return s.clients
 }
