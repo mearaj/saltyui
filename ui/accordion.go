@@ -20,11 +20,13 @@ type Accordion struct {
 	Animation component.VisibilityAnimation
 	component.AlphaPalette
 	widget.Clickable
-	Child View
+	Child layout.Widget
 	*material.Theme
-	hovering bool
-	icon     *widget.Icon
-	Title    string
+	hovering      bool
+	icon          *widget.Icon
+	Title         string
+	TitleIcon     *widget.Icon
+	ClickCallback func()
 }
 
 func (a *Accordion) Layout(gtx Gtx) (d Dim) {
@@ -40,6 +42,9 @@ func (a *Accordion) Layout(gtx Gtx) (d Dim) {
 	}
 	if a.Clicked() {
 		a.Animation.ToggleVisibility(gtx.Now)
+		if a.ClickCallback != nil {
+			a.ClickCallback()
+		}
 	}
 
 	d = layout.Flex{Axis: layout.Vertical}.Layout(gtx,
@@ -62,7 +67,7 @@ func (a *Accordion) Layout(gtx Gtx) (d Dim) {
 						Left:   unit.Dp(12),
 						Right:  unit.Dp(12),
 					}.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
-						return a.Child.Layout(gtx)
+						return a.Child(gtx)
 					})
 				}))
 				call := macro.Stop()
@@ -96,6 +101,16 @@ func (a *Accordion) layoutHeader(gtx Gtx) Dim {
 		return layout.Flex{Alignment: layout.Middle}.Layout(gtx,
 			layout.Flexed(1.0, func(gtx Gtx) Dim {
 				return layout.Flex{Alignment: layout.Middle}.Layout(gtx,
+					layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+						if a.TitleIcon != nil {
+							return layout.Flex{}.Layout(gtx, layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+								return a.TitleIcon.Layout(gtx, contentColor)
+							}), layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+								return layout.Spacer{Width: unit.Dp(16)}.Layout(gtx)
+							}))
+						}
+						return Dim{}
+					}),
 					layout.Rigid(func(gtx Gtx) Dim {
 						label := material.Label(th, unit.Dp(14), a.Title)
 						label.Color = contentColor
@@ -105,20 +120,23 @@ func (a *Accordion) layoutHeader(gtx Gtx) Dim {
 				)
 			}),
 			layout.Rigid(func(gtx Gtx) (d Dim) {
-				affine := f32.Affine2D{}
-				ic, _ := widget.NewIcon(icons.NavigationChevronRight)
-				cl := contentColor
-				origin := f32.Pt(12, 12)
-				rotation := float32(0)
-				if a.Animation.Visible() {
-					rotation = float32(math.Pi * 0.5)
+				if a.Child != nil {
+					affine := f32.Affine2D{}
+					ic, _ := widget.NewIcon(icons.NavigationChevronRight)
+					cl := contentColor
+					origin := f32.Pt(12, 12)
+					rotation := float32(0)
+					if a.Animation.Visible() {
+						rotation = float32(math.Pi * 0.5)
+					}
+					if a.Animation.Animating() {
+						rotation *= a.Animation.Revealed(gtx)
+					}
+					affine = affine.Rotate(origin, rotation)
+					defer op.Affine(affine).Push(gtx.Ops).Pop()
+					return ic.Layout(gtx, cl)
 				}
-				if a.Animation.Animating() {
-					rotation *= a.Animation.Revealed(gtx)
-				}
-				affine = affine.Rotate(origin, rotation)
-				defer op.Affine(affine).Push(gtx.Ops).Pop()
-				return ic.Layout(gtx, cl)
+				return d
 			}),
 		)
 	})

@@ -235,7 +235,7 @@ func (s *SettingsPage) drawNewIDTextField(gtx Gtx) Dim {
 func (s *SettingsPage) drawIDDetailsAccordion(gtx Gtx) (d Dim) {
 	if s.Service.CurrentIdentity() != nil {
 		if s.iDDetailsAccordion.Child == nil {
-			s.iDDetailsAccordion.Child = &s.iDDetailsView
+			s.iDDetailsAccordion.Child = s.iDDetailsView.Layout
 		}
 		return s.iDDetailsAccordion.Layout(gtx)
 	} else {
@@ -247,7 +247,7 @@ func (s *SettingsPage) drawIDDetailsAccordion(gtx Gtx) (d Dim) {
 func (s *SettingsPage) drawErrorNewIDAccordion(gtx Gtx) (d Dim) {
 	if s.Service.CurrentIdentity() == nil && s.errorCreateNewID != nil {
 		errView := ErrorView{}
-		s.errorNewIDAccordion.Child = &errView
+		s.errorNewIDAccordion.Child = errView.Layout
 		errView.Error = s.errorCreateNewID.Error()
 		return s.errorNewIDAccordion.Layout(gtx)
 	}
@@ -299,7 +299,7 @@ func (s *SettingsPage) drawRegistrationButton(gtx Gtx) Dim {
 func (s *SettingsPage) drawErrorRegisterAccordion(gtx Gtx) (d Dim) {
 	if s.errorRegister != nil {
 		errView := ErrorView{}
-		s.errorRegisterAccordion.Child = &errView
+		s.errorRegisterAccordion.Child = errView.Layout
 		errView.Error = s.errorRegister.Error()
 		return s.errorRegisterAccordion.Layout(gtx)
 	}

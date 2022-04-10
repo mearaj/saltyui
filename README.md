@@ -2,13 +2,13 @@
 A cross-platform, decentralized, chat app based on [SaltyIM](https://git.mills.io/saltyim/saltyim) for functionality and 
 [GioUI](https://gioui.org/) for UI
 
-## Platform Support
+## Supported Platform Status
 - [x] WebAssembly (Modern Browsers)
 - [x] Linux
-- [x] Windows
-- [x] macOS (Not Tested, Developer Needed)
-- [x] Android
-- [x] iOS / tvOS (Not Tested, Developer Needed)
+- [x] Windows 
+- [x] macOS
+- [x] Android (Incomplete)
+- [x] iOS / tvOS (Incomplete)
 
 ## Prerequisites
 Before continuing, please make sure you satisfy prerequisites from the following

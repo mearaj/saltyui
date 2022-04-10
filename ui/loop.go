@@ -26,6 +26,9 @@ func Loop(w *app.Window) error {
 				}
 				am.Layout(gtx)
 				e.Frame(gtx.Ops)
+				if !am.isWindowLoaded {
+					am.isWindowLoaded = true
+				}
 			}
 		}
 	}

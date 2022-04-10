@@ -22,7 +22,7 @@ type NavDrawer struct {
 	Subtitle     string
 	Anchor       component.VerticalAnchorPosition
 	selectedItem *NavItem
-	navItems     []*NavItem
+	drawerItems  []*NavItem
 	navList      widget.List
 	NavAnim      component.VisibilityAnimation
 	*material.Theme
@@ -46,9 +46,9 @@ func NewNav(title, subtitle string, manager *AppManager, th *material.Theme) *Na
 
 func (n *NavDrawer) AddNavItem(item *NavItem) {
 	item.AlphaPalette = n.AlphaPalette
-	n.navItems = append(n.navItems, item)
-	if len(n.navItems) == 1 {
-		n.navItems[0].selectedItem = n.navItems[0]
+	n.drawerItems = append(n.drawerItems, item)
+	if len(n.drawerItems) == 1 {
+		n.drawerItems[0].selectedItem = n.drawerItems[0]
 	}
 }
 
@@ -112,10 +112,10 @@ func (n *NavDrawer) layoutNavList(gtx Gtx, th *material.Theme, anim *component.V
 	dim := material.List(th, &n.scrollList).Layout(gtx, 1, func(gtx Gtx, index int) Dim {
 		return inset.Layout(gtx, func(gtx Gtx) Dim {
 			gtx.Constraints.Max.X = xConstraints - 24.0
-			dim := material.List(th, &n.navList).Layout(gtx, len(n.navItems), func(gtx Gtx, index int) Dim {
+			dim := material.List(th, &n.navList).Layout(gtx, len(n.drawerItems), func(gtx Gtx, index int) Dim {
 				inset := layout.Inset{Top: unit.Dp(8)}
 				dim := inset.Layout(gtx, func(gtx Gtx) Dim {
-					return n.navItems[index].Layout(gtx)
+					return n.drawerItems[index].Layout(gtx)
 				})
 				return dim
 			})
@@ -134,7 +134,7 @@ func (n *NavDrawer) SelectedNavItem() *NavItem {
 }
 
 func (n *NavDrawer) SetNavDestination(page Page) {
-	for _, item := range n.navItems {
+	for _, item := range n.drawerItems {
 		if item.Page() == page {
 			n.SetSelectedItem(item)
 			break
@@ -143,5 +143,5 @@ func (n *NavDrawer) SetNavDestination(page Page) {
 }
 
 func (n *NavDrawer) NavItems() []*NavItem {
-	return n.navItems
+	return n.drawerItems
 }

@@ -27,9 +27,10 @@ type AppManager struct {
 	*component.ModalLayer
 	BottomBar bool
 	*material.Theme
-	WindowHeight int
-	WindowWidth  int
-	Service      *service.Service
+	WindowHeight   int
+	WindowWidth    int
+	Service        *service.Service
+	isWindowLoaded bool
 }
 
 // NewAppManager Always call this function to create AppManager instance
@@ -78,10 +79,18 @@ func (a *AppManager) init() {
 	a.Theme = material.NewTheme(gofont.Collection())
 	go func() {
 		// Wait for the window to be ready
-		time.Sleep(time.Millisecond * 500)
-		if a.UseNonModalDrawer() {
-			a.NavAnim.Appear(time.Now())
-			a.Window.Invalidate()
+		for {
+			time.Sleep(time.Millisecond)
+			switch a.isWindowLoaded {
+			case true:
+				if a.UseNonModalDrawer() {
+					a.NavAnim.Appear(time.Now())
+					a.Window.Invalidate()
+				}
+				return
+			default:
+				continue
+			}
 		}
 	}()
 }
@@ -91,6 +100,9 @@ func (a *AppManager) Layout(gtx Gtx) Dim {
 		a.Theme = material.NewTheme(gofont.Collection())
 	}
 	th := a.Theme
+	if a.currentPage == a.pushPage {
+		a.pushPage = nil
+	}
 	if a.pushPage != nil {
 		if len(a.history) == 0 {
 			a.history = make([]Page, 0, 1)

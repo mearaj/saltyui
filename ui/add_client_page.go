@@ -109,10 +109,10 @@ func (nc *AddClientPage) DrawAppBar(gtx layout.Context) layout.Dimensions {
 	th := nc.Theme
 	if nc.buttonNavigation.Clicked() {
 		if nc.AppManager.UseNonModalDrawer() {
-			nc.NavDrawer.ToggleVisibility(time.Now())
+			nc.NavAnim.ToggleVisibility(time.Now())
 		} else {
 			nc.AppManager.ModalNavDrawer.Appear(gtx.Now)
-			nc.ModalNavDrawer.Disappear(gtx.Now)
+			nc.NavAnim.Disappear(gtx.Now)
 		}
 	}
 	component.Rect{Size: gtx.Constraints.Max, Color: th.Palette.ContrastBg}.Layout(gtx)
@@ -214,7 +214,7 @@ func (nc *AddClientPage) drawNewChatTextField(gtx Gtx) Dim {
 func (nc *AddClientPage) drawErrorNewIDAccordion(gtx Gtx) (d Dim) {
 	if nc.errorNewChat != nil {
 		errView := ErrorView{}
-		nc.errorNewChatAccordion.Child = &errView
+		nc.errorNewChatAccordion.Child = errView.Layout
 		errView.Error = nc.errorNewChat.Error()
 		return nc.errorNewChatAccordion.Layout(gtx)
 	}
