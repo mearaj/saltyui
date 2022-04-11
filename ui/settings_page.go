@@ -275,19 +275,9 @@ func (s *SettingsPage) drawRegistrationButton(gtx Gtx) Dim {
 	if button.Clicked() && !s.registerLoading {
 		s.registerLoading = true
 		go func() {
-			if s.Service.CurrentIdentity() == nil || s.inputNewID.Text() != s.Service.Address() {
-				s.errorCreateNewID = s.Service.CreateIdentity(s.inputNewID.Text())
-				if s.errorCreateNewID == nil {
-					s.errorRegister = s.Service.Register()
-					if s.errorRegister != nil {
-						alog.Logger().Println(s.errorRegister)
-					}
-				}
-			} else {
-				s.errorRegister = s.Service.Register()
-				if s.errorRegister != nil {
-					alog.Logger().Println(s.errorRegister)
-				}
+			s.errorRegister = s.Service.Register(s.inputNewID.Text())
+			if s.errorRegister != nil {
+				alog.Logger().Println(s.errorRegister)
 			}
 			s.registerLoading = false
 			s.Window.Invalidate()

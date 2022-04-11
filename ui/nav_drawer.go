@@ -8,16 +8,9 @@ import (
 	"gioui.org/widget"
 	"gioui.org/widget/material"
 	"gioui.org/x/component"
-	"time"
-)
-
-var (
-	hoverOverlayAlpha    uint8 = 96
-	selectedOverlayAlpha uint8 = 48
 )
 
 type NavDrawer struct {
-	component.AlphaPalette
 	Title        string
 	Subtitle     string
 	Anchor       component.VerticalAnchorPosition
@@ -32,12 +25,8 @@ type NavDrawer struct {
 
 func NewNav(title, subtitle string, manager *AppManager, th *material.Theme) *NavDrawer {
 	m := NavDrawer{
-		Title:    title,
-		Subtitle: subtitle,
-		AlphaPalette: component.AlphaPalette{
-			Hover:    hoverOverlayAlpha,
-			Selected: selectedOverlayAlpha,
-		},
+		Title:      title,
+		Subtitle:   subtitle,
 		AppManager: manager,
 		Theme:      th,
 	}
@@ -45,7 +34,6 @@ func NewNav(title, subtitle string, manager *AppManager, th *material.Theme) *Na
 }
 
 func (n *NavDrawer) AddNavItem(item *NavItem) {
-	item.AlphaPalette = n.AlphaPalette
 	n.drawerItems = append(n.drawerItems, item)
 	if len(n.drawerItems) == 1 {
 		n.drawerItems[0].selectedItem = n.drawerItems[0]
@@ -126,22 +114,20 @@ func (n *NavDrawer) layoutNavList(gtx Gtx, th *material.Theme, anim *component.V
 }
 func (n *NavDrawer) SetSelectedItem(item *NavItem) {
 	n.selectedItem = item
-	item.Animation.ToggleVisibility(time.Now())
 	n.AppManager.PushPage(item.Page())
 }
 func (n *NavDrawer) SelectedNavItem() *NavItem {
 	return n.selectedItem
 }
+func (n *NavDrawer) DrawerItems() []*NavItem {
+	return n.drawerItems
+}
 
 func (n *NavDrawer) SetNavDestination(page Page) {
-	for _, item := range n.drawerItems {
+	for _, item := range n.DrawerItems() {
 		if item.Page() == page {
 			n.SetSelectedItem(item)
 			break
 		}
 	}
-}
-
-func (n *NavDrawer) NavItems() []*NavItem {
-	return n.drawerItems
 }

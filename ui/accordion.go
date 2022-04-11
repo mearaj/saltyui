@@ -22,7 +22,6 @@ type Accordion struct {
 	widget.Clickable
 	Child layout.Widget
 	*material.Theme
-	hovering      bool
 	icon          *widget.Icon
 	Title         string
 	TitleIcon     *widget.Icon
@@ -36,6 +35,7 @@ func (a *Accordion) Layout(gtx Gtx) (d Dim) {
 	if a.Theme == nil {
 		a.Theme = material.NewTheme(gofont.Collection())
 	}
+	th := a.Theme
 	if a.Animation.Duration == time.Duration(0) {
 		a.Animation.Duration = time.Millisecond * 100
 		a.Animation.State = component.Invisible
@@ -49,7 +49,7 @@ func (a *Accordion) Layout(gtx Gtx) (d Dim) {
 
 	d = layout.Flex{Axis: layout.Vertical}.Layout(gtx,
 		layout.Rigid(func(gtx Gtx) Dim {
-			d = material.ButtonLayout(a.Theme, &a.Clickable).Layout(gtx,
+			d = material.ButtonLayout(th, &a.Clickable).Layout(gtx,
 				func(gtx Gtx) Dim {
 					return a.layoutHeader(gtx)
 				},
@@ -87,11 +87,7 @@ func (a *Accordion) Layout(gtx Gtx) (d Dim) {
 
 func (a *Accordion) layoutHeader(gtx Gtx) Dim {
 	th := a.Theme
-	contentColor := th.Palette.ContrastFg
-	contentColor.A = 200
-	if a.Hovered() {
-		contentColor.A = 255
-	}
+
 	d := layout.Inset{
 		Top:    unit.Dp(6),
 		Right:  unit.Dp(12),
@@ -104,7 +100,7 @@ func (a *Accordion) layoutHeader(gtx Gtx) Dim {
 					layout.Rigid(func(gtx layout.Context) layout.Dimensions {
 						if a.TitleIcon != nil {
 							return layout.Flex{}.Layout(gtx, layout.Rigid(func(gtx layout.Context) layout.Dimensions {
-								return a.TitleIcon.Layout(gtx, contentColor)
+								return a.TitleIcon.Layout(gtx, th.ContrastFg)
 							}), layout.Rigid(func(gtx layout.Context) layout.Dimensions {
 								return layout.Spacer{Width: unit.Dp(16)}.Layout(gtx)
 							}))
@@ -113,7 +109,7 @@ func (a *Accordion) layoutHeader(gtx Gtx) Dim {
 					}),
 					layout.Rigid(func(gtx Gtx) Dim {
 						label := material.Label(th, unit.Dp(14), a.Title)
-						label.Color = contentColor
+						label.Color = th.ContrastFg
 						//label.Font.Weight = text.Bold
 						return layout.Center.Layout(gtx, component.TruncatingLabelStyle(label).Layout)
 					}),
@@ -123,7 +119,7 @@ func (a *Accordion) layoutHeader(gtx Gtx) Dim {
 				if a.Child != nil {
 					affine := f32.Affine2D{}
 					ic, _ := widget.NewIcon(icons.NavigationChevronRight)
-					cl := contentColor
+					cl := th.ContrastFg
 					origin := f32.Pt(12, 12)
 					rotation := float32(0)
 					if a.Animation.Visible() {

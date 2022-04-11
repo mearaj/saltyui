@@ -11,13 +11,13 @@ type Service struct {
 	loaded       bool
 	currentID    *saltyim.Identity
 	isRegistered bool
-	address      string
-	clients      []*saltyim.Addr
+	addresses    []*saltyim.Addr
+	saltyService *saltyim.Client
 }
 
 // NewService Always call this function to create Service
 func NewService() *Service {
-	s := Service{clients: make([]*saltyim.Addr, 0)}
+	s := Service{addresses: make([]*saltyim.Addr, 0)}
 	s.init()
 	return &s
 }
@@ -35,7 +35,7 @@ func (s *Service) Loaded() bool {
 func (s *Service) clearCredentials() {
 	s.currentID = nil
 	s.isRegistered = false
-	s.address = ""
+	s.saltyService = nil
 }
 
 func (s *Service) CreateIdentity(address string) (err error) {
@@ -48,11 +48,10 @@ func (s *Service) CreateIdentity(address string) (err error) {
 		if err != nil {
 			s.clearCredentials()
 		} else {
-			s.address = address
 			err = s.saveCurrentIdentity()
 			if err != nil {
 				alog.Logger().Println(err)
-				err = nil //
+				err = nil // this is intentional
 			}
 		}
 	}
@@ -63,11 +62,13 @@ func (s *Service) CurrentIdentity() *saltyim.Identity {
 	return s.currentID
 }
 
-func (s *Service) Register() (err error) {
+func (s *Service) Register(addrStr string) (err error) {
 	if s.currentID == nil {
-		err = errors.New("current id is nil")
-		s.isRegistered = false
-		return err
+		err = s.CreateIdentity(addrStr)
+		if err != nil {
+			s.isRegistered = false
+			return err
+		}
 	}
 	ops := saltyim.WithClientIdentity(saltyim.WithIdentityBytes(s.currentID.Contents()))
 	cl, err := saltyim.NewClient(s.currentID.Addr(), ops)
@@ -87,16 +88,14 @@ func (s *Service) Register() (err error) {
 func (s *Service) IsRegistered() bool {
 	return s.currentID != nil && s.isRegistered
 }
-func (s *Service) Address() string {
-	return s.address
-}
-func (s *Service) GetClient(addr string) *saltyim.Addr {
-	if len(s.clients) == 0 {
+
+func (s *Service) GetAddr(addr string) *saltyim.Addr {
+	if len(s.addresses) == 0 {
 		return nil
 	}
-	for _, cl := range s.clients {
-		if cl != nil && cl.String() == addr {
-			return cl
+	for _, address := range s.addresses {
+		if address != nil && address.String() == addr {
+			return address
 		}
 	}
 	return nil
@@ -104,10 +103,10 @@ func (s *Service) GetClient(addr string) *saltyim.Addr {
 
 func (s *Service) NewChat(addrStr string) (err error) {
 	var addr *saltyim.Addr
-	if s.clients == nil {
-		s.clients = make([]*saltyim.Addr, 0)
+	if s.addresses == nil {
+		s.addresses = make([]*saltyim.Addr, 0)
 	} else {
-		if cl := s.GetClient(addrStr); cl != nil {
+		if cl := s.GetAddr(addrStr); cl != nil {
 			return errors.New("client already exist")
 		}
 	}
@@ -115,12 +114,45 @@ func (s *Service) NewChat(addrStr string) (err error) {
 	if err != nil {
 		return err
 	}
-	s.clients = append(s.clients, addr)
+	s.addresses = append(s.addresses, addr)
 	return err
 }
-func (s *Service) Clients() []*saltyim.Addr {
-	if s.clients == nil {
-		s.clients = make([]*saltyim.Addr, 0)
+func (s *Service) Addresses() []*saltyim.Addr {
+	if s.addresses == nil {
+		s.addresses = make([]*saltyim.Addr, 0)
 	}
-	return s.clients
+	return s.addresses
+}
+
+func (s *Service) SendMessage(address string, msg string) (err error) {
+	addr := s.GetAddr(address)
+	if addr == nil {
+		return errors.New("address not found")
+	}
+	if s.saltyService == nil {
+		err = s.createSaltyService()
+		if err != nil {
+			return err
+		}
+	}
+	err = s.saltyService.SendToAddr(addr, msg)
+	return err
+}
+
+func (s *Service) createSaltyService() (err error) {
+	currentID := s.CurrentIdentity()
+	if currentID == nil {
+		return errors.New("current id is nil")
+	}
+	contents := currentID.Contents()
+	idOption := saltyim.WithIdentityBytes(contents)
+	clientOptions := saltyim.WithClientIdentity(idOption)
+	s.saltyService, err = saltyim.NewClient(s.CurrentIdentity().Addr(), clientOptions)
+	if err != nil {
+		return err
+	}
+
+	s.saltyService.SetSend(&saltyim.ProxySend{SendEndpoint: AppSendEndPoint})
+	s.saltyService.SetLookup(&saltyim.ProxyLookup{LookupEndpoint: AppLookupEndPoint})
+	return err
 }

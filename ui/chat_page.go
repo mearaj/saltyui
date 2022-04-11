@@ -10,6 +10,8 @@ import (
 	"golang.org/x/exp/shiny/materialdesign/icons"
 	"image"
 	"image/color"
+	"log"
+	"strings"
 )
 
 // ChatPage Always call NewClientPage function to create ChatPage page
@@ -38,7 +40,7 @@ func NewClientPage(manager *AppManager, th *material.Theme) *ChatPage {
 		navigationIcon:  navIcon,
 		iconSendMessage: iconSendMessage,
 		inputMsgField: component.TextField{
-			Editor: widget.Editor{Submit: true, Mask: 0},
+			Editor: widget.Editor{},
 		},
 	}
 }
@@ -116,6 +118,17 @@ func (cp *ChatPage) drawChatRoomListItem(gtx Gtx, index int) Dim {
 	return material.Body1(cp.Theme, "Message here").Layout(gtx)
 }
 func (cp *ChatPage) drawSendMsgField(gtx Gtx) Dim {
+	if cp.submitButton.Clicked() {
+		canSend := strings.Trim(cp.inputMsgField.Text(), " ") != ""
+		currNavItem := cp.SelectedNavItem()
+		canSend = canSend && currNavItem != nil
+		if canSend {
+			err := cp.Service.SendMessage(currNavItem.Name, cp.inputMsgField.Text())
+			if err != nil {
+				log.Println(err)
+			}
+		}
+	}
 	fl := layout.Flex{
 		Axis:      layout.Horizontal,
 		Spacing:   layout.SpaceBetween,

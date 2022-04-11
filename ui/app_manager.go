@@ -12,6 +12,7 @@ import (
 	"golang.org/x/exp/shiny/materialdesign/icons"
 	"golang.org/x/image/colornames"
 	"image/color"
+	"runtime"
 	"time"
 )
 
@@ -42,7 +43,7 @@ func NewAppManager(w *app.Window) *AppManager {
 }
 
 func (a *AppManager) UseNonModalDrawer() bool {
-	return a.WindowWidth >= 800
+	return a.WindowWidth >= 800 || (runtime.GOOS != "android" && runtime.GOOS != "ios")
 }
 
 func (a *AppManager) PushPage(page Page) {
@@ -61,38 +62,26 @@ func (a *AppManager) init() {
 		a.Theme.ContrastBg, a.Theme.ContrastFg, a.Theme.Bg, a.Theme.Fg
 	a.NavDrawer = NewNav("Salty UI", "Decentralized Chat App", a, &navDrwTh)
 	a.ModalNavDrawer = ModalNavFrom(a.NavDrawer, a.ModalLayer)
+	var visibility component.VisibilityAnimationState
+	if a.UseNonModalDrawer() {
+		visibility = component.Visible
+	}
 	a.NavAnim = component.VisibilityAnimation{
-		State:    component.Invisible,
+		State:    visibility,
 		Duration: time.Millisecond * 250,
 	}
 	settingsPage := NewSettingsPage(a, a.Theme)
 	newChatPage := NewNewChatPage(a, a.Theme)
 	settingsIcon, _ := widget.NewIcon(icons.ActionSettings)
 	newChatIcon, _ := widget.NewIcon(icons.CommunicationChat)
-	settingsNavItem := NewNavItem(settingsPage, a.NavDrawer, "Settings", settingsIcon, make([]*NavItem, 0), a.Theme, a.AlphaPalette)
-	newChatNavItem := NewNavItem(newChatPage, a.NavDrawer, "New Chat", newChatIcon, make([]*NavItem, 0), a.Theme, a.AlphaPalette)
+	settingsNavItem := NewNavItem(settingsPage, a.NavDrawer, "Settings", settingsIcon, make([]*NavItem, 0), a.Theme)
+	newChatNavItem := NewNavItem(newChatPage, a.NavDrawer, "New Chat", newChatIcon, make([]*NavItem, 0), a.Theme)
 	a.AddNavItem(settingsNavItem)
 	a.AddNavItem(newChatNavItem)
 	a.history = make([]Page, 1)
 	a.currentPage = settingsPage
 	a.history[0] = a.currentPage
 	a.Theme = material.NewTheme(gofont.Collection())
-	go func() {
-		// Wait for the window to be ready
-		for {
-			time.Sleep(time.Millisecond)
-			switch a.isWindowLoaded {
-			case true:
-				if a.UseNonModalDrawer() {
-					a.NavAnim.Appear(time.Now())
-					a.Window.Invalidate()
-				}
-				return
-			default:
-				continue
-			}
-		}
-	}()
 }
 
 func (a *AppManager) Layout(gtx Gtx) Dim {
@@ -111,6 +100,7 @@ func (a *AppManager) Layout(gtx Gtx) Dim {
 		a.currentPage = a.history[len(a.history)-1]
 		a.pushPage = nil
 		a.popupPage = false
+		a.NavDrawer.SetNavDestination(a.currentPage)
 	} else if a.popupPage && len(a.history) > 1 {
 		i := len(a.history) - 1
 		a.history = a.history[:i]
