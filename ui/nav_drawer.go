@@ -8,6 +8,10 @@ import (
 	"gioui.org/widget"
 	"gioui.org/widget/material"
 	"gioui.org/x/component"
+	"image"
+	"image/color"
+	"runtime"
+	"time"
 )
 
 type NavDrawer struct {
@@ -17,38 +21,65 @@ type NavDrawer struct {
 	selectedItem *NavItem
 	drawerItems  []*NavItem
 	navList      widget.List
-	NavAnim      component.VisibilityAnimation
+	navAnim      component.VisibilityAnimation
 	*material.Theme
 	*AppManager
 	scrollList widget.List
+	*component.ModalLayer
+	*component.ModalSheet
 }
 
-func NewNav(title, subtitle string, manager *AppManager, th *material.Theme) *NavDrawer {
+func NewNavDrawer(title, subtitle string, manager *AppManager, th *material.Theme, layer *component.ModalLayer) *NavDrawer {
+	sheet := component.NewModalSheet(layer)
 	m := NavDrawer{
 		Title:      title,
 		Subtitle:   subtitle,
 		AppManager: manager,
 		Theme:      th,
+		ModalLayer: layer,
+		ModalSheet: sheet,
+		navAnim: component.VisibilityAnimation{
+			State:    component.Visible,
+			Duration: time.Millisecond * 250,
+		},
 	}
 	return &m
 }
 
-func (n *NavDrawer) AddNavItem(item *NavItem) {
+func (n *NavDrawer) AddRootNavItem(item *NavItem) {
 	n.drawerItems = append(n.drawerItems, item)
 	if len(n.drawerItems) == 1 {
 		n.drawerItems[0].selectedItem = n.drawerItems[0]
 	}
 }
 
-func (n *NavDrawer) Layout(gtx Gtx, anim *component.VisibilityAnimation) Dim {
+func (n *NavDrawer) Layout(gtx Gtx) Dim {
+	if n.useModalDrawer() {
+		n.navAnim.State = component.Invisible
+		return n.DrawerModalLayout()
+	} else {
+		n.Modal.VisibilityAnimation.State = component.Invisible
+		return n.DrawerLayout(gtx)
+	}
+}
+
+func (n *NavDrawer) DrawerLayout(gtx Gtx) Dim {
 	if n.Theme == nil {
 		n.Theme = material.NewTheme(gofont.Collection())
 	}
 	th := n.Theme
 	sheet := component.NewSheet()
-	return sheet.Layout(gtx, th, anim, func(gtx Gtx) Dim {
-		return n.LayoutContents(gtx, anim)
+	return sheet.Layout(gtx, th, &n.navAnim, func(gtx Gtx) Dim {
+		return n.LayoutContents(gtx, &n.navAnim)
 	})
+}
+func (n *NavDrawer) DrawerModalLayout() Dim {
+	n.ModalSheet.LayoutModal(func(gtx Gtx, th *material.Theme, anim *component.VisibilityAnimation) Dim {
+		PaintRect(gtx, gtx.Constraints.Max, th.ContrastBg)
+		dims := n.LayoutContents(gtx, anim)
+		return dims
+	})
+	return Dim{}
 }
 
 func (n *NavDrawer) LayoutContents(gtx Gtx, anim *component.VisibilityAnimation) Dim {
@@ -114,7 +145,6 @@ func (n *NavDrawer) layoutNavList(gtx Gtx, th *material.Theme, anim *component.V
 }
 func (n *NavDrawer) SetSelectedItem(item *NavItem) {
 	n.selectedItem = item
-	n.AppManager.PushPage(item.Page())
 }
 func (n *NavDrawer) SelectedNavItem() *NavItem {
 	return n.selectedItem
@@ -130,4 +160,41 @@ func (n *NavDrawer) SetNavDestination(page Page) {
 			break
 		}
 	}
+}
+
+func (n *NavDrawer) ToggleVisibility(when time.Time) {
+	if n.useModalDrawer() {
+		n.DrawerModalLayout()
+		n.ModalSheet.ToggleVisibility(when)
+	} else {
+		n.navAnim.ToggleVisibility(when)
+	}
+}
+
+func (n *NavDrawer) Appear(when time.Time) {
+	if n.useModalDrawer() {
+		n.DrawerModalLayout()
+		n.ModalSheet.Appear(when)
+	} else {
+		n.navAnim.Appear(when)
+	}
+}
+
+func (n *NavDrawer) Disappear(when time.Time) {
+	if n.useModalDrawer() {
+		n.DrawerModalLayout()
+		n.ModalSheet.Disappear(when)
+	} else {
+		n.navAnim.Appear(when)
+	}
+}
+
+func (n *NavDrawer) useModalDrawer() bool {
+	return n.GetWindowWidthInDp() < 800 || runtime.GOOS == "android" || runtime.GOOS == "ios"
+}
+func PaintRect(gtx Gtx, size image.Point, fill color.NRGBA) {
+	component.Rect{
+		Color: fill,
+		Size:  size,
+	}.Layout(gtx)
 }

@@ -7,10 +7,10 @@ import (
 	"gioui.org/widget"
 	"gioui.org/widget/material"
 	"gioui.org/x/component"
+	log "github.com/sirupsen/logrus"
 	"golang.org/x/exp/shiny/materialdesign/icons"
 	"image"
 	"image/color"
-	"log"
 	"strings"
 )
 
@@ -123,10 +123,14 @@ func (cp *ChatPage) drawSendMsgField(gtx Gtx) Dim {
 		currNavItem := cp.SelectedNavItem()
 		canSend = canSend && currNavItem != nil
 		if canSend {
-			err := cp.Service.SendMessage(currNavItem.Name, cp.inputMsgField.Text())
-			if err != nil {
-				log.Println(err)
-			}
+			go func() {
+				err := cp.Service.SendMessage(currNavItem.Name, cp.inputMsgField.Text())
+				if err != nil {
+					log.Println(err)
+				} else {
+					log.Println("successfully sent msg...")
+				}
+			}()
 		}
 	}
 	fl := layout.Flex{

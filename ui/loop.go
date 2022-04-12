@@ -18,12 +18,8 @@ func Loop(w *app.Window) error {
 				return e.Err
 			case system.FrameEvent:
 				gtx := layout.NewContext(&ops, e)
-				if am.WindowWidth != gtx.Constraints.Max.X {
-					am.WindowWidth = gtx.Constraints.Max.X
-				}
-				if am.WindowHeight != gtx.Constraints.Max.Y {
-					am.WindowHeight = gtx.Constraints.Max.Y
-				}
+				am.Constraints = gtx.Constraints
+				am.Metric = gtx.Metric
 				am.Layout(gtx)
 				e.Frame(gtx.Ops)
 				if !am.isWindowLoaded {

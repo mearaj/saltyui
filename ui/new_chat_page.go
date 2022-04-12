@@ -114,12 +114,7 @@ func (nc *NewChatPage) DrawAppBar(gtx layout.Context) layout.Dimensions {
 	gtx.Constraints.Max.Y = gtx.Px(unit.Dp(56))
 	th := nc.Theme
 	if nc.buttonNavigation.Clicked() {
-		if nc.AppManager.UseNonModalDrawer() {
-			nc.NavAnim.ToggleVisibility(time.Now())
-		} else {
-			nc.AppManager.ModalNavDrawer.Appear(gtx.Now)
-			nc.NavAnim.Disappear(gtx.Now)
-		}
+		nc.NavDrawer.ToggleVisibility(time.Now())
 	}
 	component.Rect{Size: gtx.Constraints.Max, Color: th.Palette.ContrastBg}.Layout(gtx)
 	layout.Flex{
@@ -189,8 +184,8 @@ func (nc *NewChatPage) drawNewChatTextField(gtx Gtx) Dim {
 			if nc.errorNewChat != nil {
 				alog.Logger().Println(nc.errorNewChat)
 				nc.errorNewChatAccordion.Animation.Appear(gtx.Now)
-			} else if clients := nc.Service.Addresses(); len(clients) != 0 {
-				client := nc.Service.GetAddr(nc.inputNewChat.Text())
+			} else if addrs := nc.Service.Addresses(); len(addrs) != 0 {
+				addr := nc.Service.GetAddr(nc.inputNewChat.Text())
 				for _, navItem := range nc.AppManager.DrawerItems() {
 					if navItem != nil && navItem.Page() == nc {
 						var page Page
@@ -202,13 +197,18 @@ func (nc *NewChatPage) drawNewChatTextField(gtx Gtx) Dim {
 						avatarIcon, _ := widget.NewIcon(icons.SocialPerson)
 						newChatNavItem := NewNavItem(page,
 							nc.NavDrawer,
-							client.String(),
+							addr.String(),
 							avatarIcon,
 							make([]*NavItem, 0),
 							nc.Theme,
+							ChatPageUrl,
 						)
 						navItem.AddChild(newChatNavItem)
 						navItem.SetSelectedItem(newChatNavItem)
+						if nc.NavDrawer.CurrentPage() == nc {
+							nc.AppManager.PushPage(newChatNavItem.Page())
+						}
+						nc.Window.Invalidate()
 						break
 					}
 				}

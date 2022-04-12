@@ -21,9 +21,10 @@ type NavItem struct {
 	*material.Theme
 	ThemeAlt *material.Theme
 	Accordion
+	url PageURL
 }
 
-func NewNavItem(page Page, drawer *NavDrawer, name string, icon *widget.Icon, children []*NavItem, th *material.Theme) *NavItem {
+func NewNavItem(page Page, drawer *NavDrawer, name string, icon *widget.Icon, children []*NavItem, th *material.Theme, url PageURL) *NavItem {
 	return &NavItem{
 		page:      page,
 		NavDrawer: drawer,
@@ -40,11 +41,13 @@ func NewNavItem(page Page, drawer *NavDrawer, name string, icon *widget.Icon, ch
 			},
 			TitleIcon: icon,
 		},
+		url: url,
 	}
 }
 
 func (n *NavItem) OnClick() {
 	n.SetSelectedItem(n)
+	n.AppManager.PushPage(n.Page())
 }
 
 func (n *NavItem) IsSelected() bool {
@@ -103,4 +106,12 @@ func (n *NavItem) AddChild(item *NavItem) {
 	}
 	n.Accordion.Animation.State = component.Visible
 	n.children = append(n.children, item)
+}
+
+func (n *NavItem) ReplaceChildren(children []*NavItem) {
+	n.Child = nil
+	n.children = children
+}
+func (n *NavItem) URL() PageURL {
+	return n.url
 }

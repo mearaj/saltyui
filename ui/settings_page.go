@@ -38,6 +38,7 @@ type SettingsPage struct {
 	errorParseAddr         error
 	registerLoading        bool
 	loadedFromFile         bool
+	creatingNewID          bool
 }
 
 // NewSettingsPage Always call this function to create SettingsPage page
@@ -161,12 +162,7 @@ func (s *SettingsPage) DrawAppBar(gtx Gtx) Dim {
 	gtx.Constraints.Max.Y = gtx.Px(unit.Dp(56))
 	th := s.Theme
 	if s.buttonNavigation.Clicked() {
-		if s.AppManager.UseNonModalDrawer() {
-			s.NavAnim.ToggleVisibility(time.Now())
-		} else {
-			s.AppManager.ModalNavDrawer.Appear(gtx.Now)
-			s.NavAnim.Disappear(gtx.Now)
-		}
+		s.NavDrawer.ToggleVisibility(time.Now())
 	}
 	component.Rect{Size: gtx.Constraints.Max, Color: th.Palette.ContrastBg}.Layout(gtx)
 	layout.Flex{
@@ -223,11 +219,24 @@ func (s *SettingsPage) drawNewIDTextField(gtx Gtx) Dim {
 		Icon:   s.iconCreateNewID,
 		Text:   buttonText,
 	}
-	if button.Clicked() {
-		s.errorCreateNewID = s.Service.CreateIdentity(s.inputNewID.Text())
-		if s.errorCreateNewID != nil {
-			s.errorNewIDAccordion.Animation.Appear(gtx.Now)
-		}
+	if button.Clicked() && !s.creatingNewID {
+		s.creatingNewID = true
+		go func() {
+			prevID := s.Service.CurrentIdentity()
+			s.errorCreateNewID = s.Service.CreateIdentity(s.inputNewID.Text())
+			if s.errorCreateNewID != nil {
+				s.errorNewIDAccordion.Animation.Appear(time.Now())
+			}
+			if prevID != nil && !s.Service.IsCurrentIDAddr(prevID.Addr().String()) {
+				for _, navItem := range s.AppManager.DrawerItems() {
+					if navItem.URL() == NewChatPageURL {
+						newChildren := make([]*NavItem, 0, 1)
+						navItem.ReplaceChildren(newChildren)
+					}
+				}
+			}
+			s.creatingNewID = false
+		}()
 	}
 	return drawFormFieldRowWithLabel(gtx, s.Theme, labelText, labelHintText, &s.inputNewID, &ib)
 }

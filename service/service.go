@@ -36,10 +36,21 @@ func (s *Service) clearCredentials() {
 	s.currentID = nil
 	s.isRegistered = false
 	s.saltyService = nil
+	s.addresses = nil
 }
 
-func (s *Service) CreateIdentity(address string) (err error) {
-	addr, err := saltyim.ParseAddr(address)
+func (s Service) IsCurrentIDAddr(addressStr string) bool {
+	return s.CurrentIdentity() != nil &&
+		s.CurrentIdentity().Addr().String() == addressStr
+}
+
+func (s *Service) CreateIdentity(addressStr string) (err error) {
+	// clear Credentials if only address changes
+	isCurrent := s.IsCurrentIDAddr(addressStr)
+	if !isCurrent {
+		s.clearCredentials()
+	}
+	addr, err := saltyim.ParseAddr(addressStr)
 	if err != nil {
 		s.clearCredentials()
 		return err

@@ -5,6 +5,7 @@ import (
 	"gioui.org/font/gofont"
 	"gioui.org/layout"
 	"gioui.org/op/paint"
+	"gioui.org/unit"
 	"gioui.org/widget"
 	"gioui.org/widget/material"
 	"gioui.org/x/component"
@@ -12,8 +13,6 @@ import (
 	"golang.org/x/exp/shiny/materialdesign/icons"
 	"golang.org/x/image/colornames"
 	"image/color"
-	"runtime"
-	"time"
 )
 
 // AppManager Always call NewAppManager function to create AppManager instance
@@ -24,14 +23,13 @@ type AppManager struct {
 	popupPage   bool
 	history     []Page
 	*NavDrawer
-	*ModalNavDrawer
 	*component.ModalLayer
 	BottomBar bool
 	*material.Theme
-	WindowHeight   int
-	WindowWidth    int
 	Service        *service.Service
 	isWindowLoaded bool
+	Constraints    layout.Constraints
+	Metric         unit.Metric
 }
 
 // NewAppManager Always call this function to create AppManager instance
@@ -40,10 +38,6 @@ func NewAppManager(w *app.Window) *AppManager {
 	am := &AppManager{Window: w, Service: s}
 	am.init()
 	return am
-}
-
-func (a *AppManager) UseNonModalDrawer() bool {
-	return a.WindowWidth >= 800 || (runtime.GOOS != "android" && runtime.GOOS != "ios")
 }
 
 func (a *AppManager) PushPage(page Page) {
@@ -60,24 +54,15 @@ func (a *AppManager) init() {
 	navDrwTh := *a.Theme
 	navDrwTh.Bg, navDrwTh.Fg, navDrwTh.ContrastBg, navDrwTh.ContrastFg =
 		a.Theme.ContrastBg, a.Theme.ContrastFg, a.Theme.Bg, a.Theme.Fg
-	a.NavDrawer = NewNav("Salty UI", "Decentralized Chat App", a, &navDrwTh)
-	a.ModalNavDrawer = ModalNavFrom(a.NavDrawer, a.ModalLayer)
-	var visibility component.VisibilityAnimationState
-	if a.UseNonModalDrawer() {
-		visibility = component.Visible
-	}
-	a.NavAnim = component.VisibilityAnimation{
-		State:    visibility,
-		Duration: time.Millisecond * 250,
-	}
+	a.NavDrawer = NewNavDrawer("Salty UI", "Decentralized Chat App", a, &navDrwTh, a.ModalLayer)
 	settingsPage := NewSettingsPage(a, a.Theme)
 	newChatPage := NewNewChatPage(a, a.Theme)
 	settingsIcon, _ := widget.NewIcon(icons.ActionSettings)
 	newChatIcon, _ := widget.NewIcon(icons.CommunicationChat)
-	settingsNavItem := NewNavItem(settingsPage, a.NavDrawer, "Settings", settingsIcon, make([]*NavItem, 0), a.Theme)
-	newChatNavItem := NewNavItem(newChatPage, a.NavDrawer, "New Chat", newChatIcon, make([]*NavItem, 0), a.Theme)
-	a.AddNavItem(settingsNavItem)
-	a.AddNavItem(newChatNavItem)
+	settingsNavItem := NewNavItem(settingsPage, a.NavDrawer, "Settings", settingsIcon, make([]*NavItem, 0), a.Theme, SettingsPageURL)
+	newChatNavItem := NewNavItem(newChatPage, a.NavDrawer, "New Chat", newChatIcon, make([]*NavItem, 0), a.Theme, NewChatPageURL)
+	a.AddRootNavItem(settingsNavItem)
+	a.AddRootNavItem(newChatNavItem)
 	a.history = make([]Page, 1)
 	a.currentPage = settingsPage
 	a.history[0] = a.currentPage
@@ -121,16 +106,16 @@ func (a *AppManager) Layout(gtx Gtx) Dim {
 				th.ContrastBg = color.NRGBA(colornames.White)
 				th.Fg = color.NRGBA(colornames.White)
 				gtx.Constraints.Max.X /= 3
-				if 350 > a.WindowWidth {
-					gtx.Constraints.Max.X = a.WindowWidth - 100
-					gtx.Constraints.Min.X = a.WindowWidth - 100
+				if a.GetWindowWidthInDp() < 350 {
+					gtx.Constraints.Max.X = int((350 * gtx.Metric.PxPerDp) - 100)
+					gtx.Constraints.Min.X = int((350 * gtx.Metric.PxPerDp) - 100)
 				} else {
-					gtx.Constraints.Min.X = 350
+					gtx.Constraints.Min.X = int(350 * gtx.Metric.PxPerDp)
 					if gtx.Constraints.Max.X < gtx.Constraints.Min.X {
 						gtx.Constraints.Max.X = gtx.Constraints.Min.X
 					}
 				}
-				return a.NavDrawer.Layout(gtx, &a.NavAnim)
+				return a.NavDrawer.Layout(gtx)
 			}),
 			layout.Flexed(1, func(gtx Gtx) Dim {
 				bar := layout.Rigid(func(gtx Gtx) Dim {
@@ -153,8 +138,18 @@ func (a *AppManager) Layout(gtx Gtx) Dim {
 		)
 	})
 	layout.Flex{}.Layout(gtx, content)
-	if !a.UseNonModalDrawer() {
-		a.ModalLayer.Layout(gtx, th)
-	}
+	a.ModalLayer.Layout(gtx, th)
 	return Dim{Size: gtx.Constraints.Max}
+}
+
+func (a *AppManager) CurrentPage() Page {
+	return a.currentPage
+}
+func (a *AppManager) GetWindowWidthInDp() int {
+	width := int(float32(a.Constraints.Max.X) / a.Metric.PxPerDp)
+	return width
+}
+
+func (a *AppManager) GetWindowWidthInPx() int {
+	return a.Constraints.Max.X
 }
