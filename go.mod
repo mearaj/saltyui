@@ -8,6 +8,7 @@ require (
 	github.com/sirupsen/logrus v1.8.1
 	go.mills.io/saltyim v0.0.0-20220405233043-81935022c1ec
 	golang.org/x/exp/shiny v0.0.0-20220328175248-053ad81199eb
+	golang.org/x/image v0.0.0-20220321031419-a8550c1d254a
 )
 
 require (
@@ -66,7 +67,6 @@ require (
 	go.yarn.social/lextwt v0.0.0-20220318224940-ae4228bbcb31 // indirect
 	go.yarn.social/types v0.0.0-20220304222359-9694f95ad749 // indirect
 	golang.org/x/crypto v0.0.0-20220321153916-2c7772ba3064 // indirect
-	golang.org/x/image v0.0.0-20220321031419-a8550c1d254a // indirect
 	golang.org/x/net v0.0.0-20220325170049-de3da57026de // indirect
 	golang.org/x/sys v0.0.0-20220405210540-1e041c57c461 // indirect
 	golang.org/x/text v0.3.7 // indirect

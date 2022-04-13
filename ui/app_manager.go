@@ -94,9 +94,7 @@ func (a *AppManager) Layout(gtx Gtx) Dim {
 		a.pushPage = nil
 		a.popupPage = false
 	}
-	//if a.ModalNavDrawer.NavDestinationChanged() {
-	//	a.PushPage(gtx, a.ModalNavDrawer.CurrentNavDestination().(Page))
-	//}
+
 	paint.Fill(gtx.Ops, th.Palette.Bg)
 	content := layout.Flexed(1, func(gtx Gtx) Dim {
 		return layout.Flex{}.Layout(gtx,
@@ -106,11 +104,12 @@ func (a *AppManager) Layout(gtx Gtx) Dim {
 				th.ContrastBg = color.NRGBA(colornames.White)
 				th.Fg = color.NRGBA(colornames.White)
 				gtx.Constraints.Max.X /= 3
-				if a.GetWindowWidthInDp() < 350 {
-					gtx.Constraints.Max.X = int((350 * gtx.Metric.PxPerDp) - 100)
-					gtx.Constraints.Min.X = int((350 * gtx.Metric.PxPerDp) - 100)
+				const minWidth = 300
+				if a.GetWindowWidthInDp() < minWidth {
+					gtx.Constraints.Max.X = int((minWidth * gtx.Metric.PxPerDp) - 100)
+					gtx.Constraints.Min.X = int((minWidth * gtx.Metric.PxPerDp) - 100)
 				} else {
-					gtx.Constraints.Min.X = int(350 * gtx.Metric.PxPerDp)
+					gtx.Constraints.Min.X = int(minWidth * gtx.Metric.PxPerDp)
 					if gtx.Constraints.Max.X < gtx.Constraints.Min.X {
 						gtx.Constraints.Max.X = gtx.Constraints.Min.X
 					}

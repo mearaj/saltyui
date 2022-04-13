@@ -7,7 +7,6 @@ import (
 	"gioui.org/widget"
 	"gioui.org/widget/material"
 	"gioui.org/x/component"
-	"github.com/mearaj/saltyui/alog"
 	"go.mills.io/saltyim"
 	"golang.org/x/exp/shiny/materialdesign/colornames"
 	"golang.org/x/exp/shiny/materialdesign/icons"
@@ -30,6 +29,7 @@ type SettingsPage struct {
 	buttonNavigation       widget.Clickable
 	navigationIcon         *widget.Icon
 	iDDetailsAccordion     Accordion
+	iDConfigAccordion      Accordion
 	errorNewIDAccordion    Accordion
 	errorRegisterAccordion Accordion
 	iDDetailsView          IDDetailsView
@@ -53,7 +53,7 @@ func NewSettingsPage(manager *AppManager, th *material.Theme) *SettingsPage {
 	return &SettingsPage{
 		AppManager:      manager,
 		Theme:           th,
-		title:           "SettingsPage",
+		title:           "Settings",
 		navigationIcon:  navIcon,
 		iconCreateNewID: iconCreateNewID,
 		iDDetailsView: IDDetailsView{
@@ -62,7 +62,15 @@ func NewSettingsPage(manager *AppManager, th *material.Theme) *SettingsPage {
 		},
 		iDDetailsAccordion: Accordion{
 			Theme: th,
-			Title: "View Details",
+			Title: "View Current ID Details",
+			Animation: component.VisibilityAnimation{
+				State:    component.Visible,
+				Duration: time.Millisecond * 250,
+			},
+		},
+		iDConfigAccordion: Accordion{
+			Theme: th,
+			Title: "View Current ID Config",
 			Animation: component.VisibilityAnimation{
 				State:    component.Visible,
 				Duration: time.Millisecond * 250,
@@ -285,9 +293,6 @@ func (s *SettingsPage) drawRegistrationButton(gtx Gtx) Dim {
 		s.registerLoading = true
 		go func() {
 			s.errorRegister = s.Service.Register(s.inputNewID.Text())
-			if s.errorRegister != nil {
-				alog.Logger().Println(s.errorRegister)
-			}
 			s.registerLoading = false
 			s.Window.Invalidate()
 		}()

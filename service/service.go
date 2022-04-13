@@ -1,8 +1,10 @@
 package service
 
 import (
+	"context"
 	"errors"
-	"github.com/mearaj/saltyui/alog"
+	"fmt"
+	log "github.com/sirupsen/logrus"
 	"go.mills.io/saltyim"
 )
 
@@ -12,7 +14,7 @@ type Service struct {
 	currentID    *saltyim.Identity
 	isRegistered bool
 	addresses    []*saltyim.Addr
-	saltyService *saltyim.Client
+	saltyClient  *saltyim.Client
 }
 
 // NewService Always call this function to create Service
@@ -35,7 +37,7 @@ func (s *Service) Loaded() bool {
 func (s *Service) clearCredentials() {
 	s.currentID = nil
 	s.isRegistered = false
-	s.saltyService = nil
+	s.saltyClient = nil
 	s.addresses = nil
 }
 
@@ -61,8 +63,13 @@ func (s *Service) CreateIdentity(addressStr string) (err error) {
 		} else {
 			err = s.saveCurrentIdentity()
 			if err != nil {
-				alog.Logger().Println(err)
+				log.Error(err)
 				err = nil // this is intentional
+			}
+			err = s.createSaltyClient()
+			if err != nil {
+				log.Error(err)
+				err = nil
 			}
 		}
 	}
@@ -140,17 +147,17 @@ func (s *Service) SendMessage(address string, msg string) (err error) {
 	if addr == nil {
 		return errors.New("address not found")
 	}
-	if s.saltyService == nil {
-		err = s.createSaltyService()
+	if s.saltyClient == nil {
+		err = s.createSaltyClient()
 		if err != nil {
 			return err
 		}
 	}
-	err = s.saltyService.SendToAddr(addr, msg)
+	err = s.saltyClient.SendToAddr(addr, msg)
 	return err
 }
 
-func (s *Service) createSaltyService() (err error) {
+func (s *Service) createSaltyClient() (err error) {
 	currentID := s.CurrentIdentity()
 	if currentID == nil {
 		return errors.New("current id is nil")
@@ -158,12 +165,42 @@ func (s *Service) createSaltyService() (err error) {
 	contents := currentID.Contents()
 	idOption := saltyim.WithIdentityBytes(contents)
 	clientOptions := saltyim.WithClientIdentity(idOption)
-	s.saltyService, err = saltyim.NewClient(s.CurrentIdentity().Addr(), clientOptions)
+	s.saltyClient, err = saltyim.NewClient(s.CurrentIdentity().Addr(), clientOptions)
 	if err != nil {
 		return err
 	}
-
-	s.saltyService.SetSend(&saltyim.ProxySend{SendEndpoint: AppSendEndPoint})
-	s.saltyService.SetLookup(&saltyim.ProxyLookup{LookupEndpoint: AppLookupEndPoint})
+	s.runClientService()
 	return err
+}
+
+func (s *Service) runClientService() {
+	if s.currentID == nil || s.saltyClient == nil {
+		return
+	}
+	s.saltyClient.SetSend(&saltyim.ProxySend{SendEndpoint: AppSendEndPoint})
+	s.saltyClient.SetLookup(&saltyim.ProxyLookup{LookupEndpoint: AppLookupEndPoint})
+	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				log.Error("recovered from error ", r)
+			}
+			log.Debugln("returning from runClientService's goroutine")
+		}()
+		var ctx context.Context
+		ctx = context.Background()
+		inboxCh := s.saltyClient.Subscribe(ctx, "", "", "")
+		outboxCh := s.saltyClient.OutboxClient(nil).Subscribe(ctx, "", "", "")
+		for {
+			select {
+			case <-ctx.Done():
+				close(inboxCh)
+				close(outboxCh)
+				return
+			case msg := <-inboxCh:
+				fmt.Println(msg)
+			case msg := <-outboxCh:
+				fmt.Println(msg)
+			}
+		}
+	}()
 }

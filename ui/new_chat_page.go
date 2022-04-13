@@ -7,7 +7,6 @@ import (
 	"gioui.org/widget"
 	"gioui.org/widget/material"
 	"gioui.org/x/component"
-	"github.com/mearaj/saltyui/alog"
 	"go.mills.io/saltyim"
 	"golang.org/x/exp/shiny/materialdesign/colornames"
 	"golang.org/x/exp/shiny/materialdesign/icons"
@@ -182,7 +181,6 @@ func (nc *NewChatPage) drawNewChatTextField(gtx Gtx) Dim {
 			}
 			nc.errorNewChat = nc.Service.NewChat(nc.inputNewChat.Text())
 			if nc.errorNewChat != nil {
-				alog.Logger().Println(nc.errorNewChat)
 				nc.errorNewChatAccordion.Animation.Appear(gtx.Now)
 			} else if addrs := nc.Service.Addresses(); len(addrs) != 0 {
 				addr := nc.Service.GetAddr(nc.inputNewChat.Text())
