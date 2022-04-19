@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"gioui.org/app"
+	"github.com/mearaj/saltyui/alog"
 	log "github.com/sirupsen/logrus"
 	"go.mills.io/saltyim"
 	"io/ioutil"
@@ -17,16 +18,20 @@ import (
 // Service Always call NewService function to create Service
 type service struct {
 	loaded            bool
-	currentIDState    IdentityState
+	identity          *saltyim.Identity
+	identities        []*saltyim.Identity
 	isRegistered      bool
 	userIdentities    []*saltyim.Identity
 	contactsAddresses []*saltyim.Addr
 	saltyClient       *saltyim.Client
 	initialized       bool
+	configJSON        *ConfigJSON
+	messages          map[string][]Message
+	isClientRunning   bool
 }
 
 func (s *service) IsRegistered() bool {
-	return s.CurrentIdentityState() != nil && s.isRegistered
+	return s.Identity() != nil && s.isRegistered
 }
 
 func (s *service) GetAddr(addr string) *saltyim.Addr {
@@ -73,11 +78,11 @@ func (s *service) loadCurrentIdentity() (err error) {
 		return err
 	}
 	ops := saltyim.WithIdentityBytes(contents)
-	s.currentID, err = saltyim.GetOrCreateIdentity(ops)
+	s.identity, err = saltyim.GetOrCreateIdentity(ops)
 	if err != nil {
 		return err
 	}
-	err = s.createSaltyClient()
+	err = <-s.createSaltyClient()
 	if err != nil {
 		log.Error(err)
 		err = nil
@@ -86,41 +91,58 @@ func (s *service) loadCurrentIdentity() (err error) {
 	return err // err is expected to be nil here
 }
 
-func (s *service) saveCurrentIdentity() <-chan error {
+func (s *service) saveIdentity(identity *saltyim.Identity) <-chan error {
 	errCh := make(chan error, 1)
+	var err error
+	if s.Identity() == nil || identity == nil {
+		err = errors.New("current id or provided id is nil")
+		errCh <- err
+		close(errCh)
+		return errCh
+	}
 	go func() {
-		var err error
-		defer func() {
-			if r := recover(); r != nil {
-				log.Error("recovered from panic", r)
-			}
-			errCh <- err
-			close(errCh)
-		}()
-		currentId := s.currentID
-		if currentId == nil {
-			err = errors.New("current identity is nil")
-		}
-		configDir, err := app.DataDir()
+		defer func() { recoverPanicCloseCh(errCh, err, alog.Logger()) }()
+		var configDir string
+		configDir, err = app.DataDir()
 		if err != nil {
 			return
 		}
-		usr, err := user.Current()
+		var usr *user.User
+		usr, err = user.Current()
 		if err != nil {
 			return
 		}
 		userFileName := fmt.Sprintf("%s.key", usr.Username)
 		userFilePath := filepath.Join(configDir, DBPathCfgName, userFileName)
-		contentsBytes := currentId.Contents()
+		contentsBytes := identity.Contents()
 		err = os.WriteFile(userFilePath, contentsBytes, 0644)
 		if err != nil {
 			return
 		}
-		userID := currentId.Addr().String()
+		userID := identity.Addr().String()
 		userIDFileName := fmt.Sprintf("%s.key", userID)
 		userIDFilePath := filepath.Join(configDir, DBPathCfgName, userIDFileName)
 		err = os.WriteFile(userIDFilePath, contentsBytes, 0644)
 		return
 	}()
+	return errCh
+}
+func (s *service) saveIdentities() <-chan error {
+	errCh := make(chan error, 1)
+	errCh <- nil
+	close(errCh)
+	return errCh
+}
+func (s *service) saveMessage(message Message) <-chan error {
+	errCh := make(chan error, 1)
+	errCh <- nil
+	close(errCh)
+	return errCh
+}
+
+func (s *service) saveContacts() <-chan error {
+	errCh := make(chan error, 1)
+	errCh <- nil
+	close(errCh)
 	return errCh
 }

@@ -109,7 +109,7 @@ func (cp *ChatRoomPage) drawChatRoomList(gtx Gtx) Dim {
 	gtx.Constraints.Min = gtx.Constraints.Max
 	return layout.Flex{}.Layout(gtx,
 		layout.Rigid(func(gtx Gtx) Dim {
-			inset := layout.UniformInset(unit.Dp(8))
+			inset := layout.UniformInset(unit.Dp(16))
 			return inset.Layout(gtx, func(gtx Gtx) Dim {
 				msgs := cp.Service.Messages(cp.SelectedItem().NavTitle())
 				cp.List.Axis = layout.Vertical
@@ -120,7 +120,10 @@ func (cp *ChatRoomPage) drawChatRoomList(gtx Gtx) Dim {
 }
 func (cp *ChatRoomPage) drawChatRoomListItem(gtx Gtx, index int) Dim {
 	msgs := cp.Service.Messages(cp.SelectedItem().NavTitle())
-	return material.Body1(cp.Theme, msgs[index].Text).Layout(gtx)
+	item := ChatRoomPageItem{
+		Message: msgs[index],
+	}
+	return item.Layout(gtx)
 }
 func (cp *ChatRoomPage) drawSendMsgField(gtx Gtx) Dim {
 	if cp.submitButton.Clicked() {
@@ -148,12 +151,7 @@ func (cp *ChatRoomPage) drawSendMsgField(gtx Gtx) Dim {
 		WeightSum: 1,
 	}
 	gtx.Constraints.Max.Y = 200
-	inset := layout.Inset{
-		Top:    unit.Dp(16),
-		Right:  unit.Dp(16),
-		Bottom: unit.Dp(16),
-		Left:   unit.Dp(16),
-	}
+	inset := layout.UniformInset(unit.Dp(16))
 	return inset.Layout(gtx, func(gtx Gtx) Dim {
 		return fl.Layout(gtx,
 			layout.Flexed(1.0, func(gtx Gtx) Dim {
