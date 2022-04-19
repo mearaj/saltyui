@@ -230,7 +230,7 @@ func (s *service) SendMessage(address string, msg string) <-chan error {
 			ContactAddr: address,
 			From:        s.Identity().Addr().String(),
 			To:          address,
-			Created:     time.Now().String(),
+			Created:     time.Now().UTC().Format(time.RFC3339),
 			Text:        msg,
 			Key:         s.Identity().Key().String(),
 		}
@@ -424,7 +424,8 @@ func (s *service) NewChat(addrStr string) <-chan error {
 			s.contactsAddresses = make([]*saltyim.Addr, 0)
 		} else {
 			if cl := s.GetContactAddr(addrStr); cl != nil {
-				err = errors.New("client already exist")
+				// Todo: it's impacting UI
+				// err = errors.New("client already exist")
 				return
 			}
 		}

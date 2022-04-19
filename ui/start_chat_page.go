@@ -185,19 +185,6 @@ func (nc *StartChatPage) drawNewChatTextField(gtx Gtx) Dim {
 			if nc.errorNewChat != nil {
 				nc.errorNewChatAccordion.Animation.Appear(gtx.Now)
 				alog.Logger().Errorln(nc.errorNewChat)
-			} else {
-				if nc.CurrentPage() == nc {
-					if navItem, ok := nc.SelectedItem().(*StartChatNavItem); ok {
-						contacts := nc.Service.ContactsAddresses()
-						if len(contacts) != 0 {
-							contact := contacts[len(contacts)-1]
-							newItem := NewChatRoomItem(nc.AppManager, nc.Theme, contact.String())
-							navItem.AddChild(newItem)
-							nc.SetSelectedItem(newItem)
-							nc.PushPage(newItem.Page())
-						}
-					}
-				}
 			}
 			nc.addingNewClient = false
 		}()
