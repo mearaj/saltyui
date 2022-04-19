@@ -6,7 +6,6 @@ import (
 	"gioui.org/text"
 	"gioui.org/widget/material"
 	"github.com/mearaj/saltyui/service"
-	log "github.com/sirupsen/logrus"
 )
 
 type ChatRoomPageItem struct {
@@ -31,7 +30,6 @@ func (c *ChatRoomPageItem) Layout(gtx Gtx) (d Dim) {
 
 func (c ChatRoomPageItem) meLayout(gtx Gtx) Dim {
 	gtx.Constraints.Min.X = gtx.Constraints.Max.X
-	log.Println(gtx.Constraints.Max.X)
 	return layout.Flex{Spacing: layout.SpaceStart}.Layout(gtx,
 		layout.Rigid(func(gtx2 Gtx) Dim {
 			gtx.Constraints.Max.X = int(float32(gtx.Constraints.Max.X) / 1.5)
@@ -42,7 +40,6 @@ func (c ChatRoomPageItem) meLayout(gtx Gtx) Dim {
 }
 func (c ChatRoomPageItem) youLayout(gtx Gtx) Dim {
 	gtx.Constraints.Min.X = gtx.Constraints.Max.X
-	log.Println(gtx.Constraints.Max.X)
 	return layout.Flex{Spacing: layout.SpaceEnd}.Layout(gtx,
 		layout.Rigid(func(gtx2 Gtx) Dim {
 			gtx.Constraints.Max.X = int(float32(gtx.Constraints.Max.X) / 1.5)
