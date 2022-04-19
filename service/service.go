@@ -403,6 +403,7 @@ func (s *service) runClientService() <-chan error {
 						s.saveMessage(dbMsg)
 					}
 				}
+				alog.Logger().Println(msg.Text)
 			case msg := <-outboxCh:
 				alog.Logger().Debugln(msg)
 			}
