@@ -3,8 +3,10 @@ package ui
 import (
 	"gioui.org/font/gofont"
 	"gioui.org/layout"
-	"gioui.org/text"
+	"gioui.org/op"
+	"gioui.org/unit"
 	"gioui.org/widget/material"
+	"gioui.org/x/component"
 	"github.com/mearaj/saltyui/service"
 )
 
@@ -23,26 +25,27 @@ func (c *ChatRoomPageItem) Layout(gtx Gtx) (d Dim) {
 	var isMe bool
 	isMe = c.Message.UserAddr == c.Message.From
 	if isMe {
-		return c.meLayout(gtx)
+		return c.commonLayout(gtx, layout.SpaceStart)
 	}
-	return c.youLayout(gtx)
+	return c.commonLayout(gtx, layout.SpaceEnd)
 }
 
-func (c ChatRoomPageItem) meLayout(gtx Gtx) Dim {
-	gtx.Constraints.Min.X = gtx.Constraints.Max.X
-	return layout.Flex{Spacing: layout.SpaceStart}.Layout(gtx,
-		layout.Rigid(func(gtx2 Gtx) Dim {
-			gtx.Constraints.Max.X = int(float32(gtx.Constraints.Max.X) / 1.5)
-			bd := material.Body1(c.Theme, c.Message.Text)
-			bd.Alignment = text.End
-			return bd.Layout(gtx)
-		}))
-}
-func (c ChatRoomPageItem) youLayout(gtx Gtx) Dim {
-	gtx.Constraints.Min.X = gtx.Constraints.Max.X
-	return layout.Flex{Spacing: layout.SpaceEnd}.Layout(gtx,
-		layout.Rigid(func(gtx2 Gtx) Dim {
-			gtx.Constraints.Max.X = int(float32(gtx.Constraints.Max.X) / 1.5)
-			return material.Body1(c.Theme, c.Message.Text).Layout(gtx)
-		}))
+func (c *ChatRoomPageItem) commonLayout(gtx Gtx, spacing layout.Spacing) Dim {
+	macro := op.Record(gtx.Ops)
+	inset := layout.UniformInset(unit.Dp(12))
+	d := inset.Layout(gtx, func(gtx Gtx) Dim {
+		flex := layout.Flex{Spacing: spacing}
+		return flex.Layout(gtx,
+			layout.Rigid(func(gtx2 Gtx) Dim {
+				gtx.Constraints.Max.X = int(float32(gtx.Constraints.Max.X) / 1.5)
+				bd := material.Body1(c.Theme, c.Message.Text)
+				return bd.Layout(gtx)
+			}))
+	})
+	bgColor := c.Theme.ContrastBg
+	bgColor.A = 50
+	rect := component.Rect{Color: bgColor, Size: d.Size, Radii: unit.Dp(8).V}
+	call := macro.Stop()
+	defer call.Add(gtx.Ops)
+	return rect.Layout(gtx)
 }
