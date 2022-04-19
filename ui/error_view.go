@@ -18,7 +18,7 @@ func (i *ErrorView) Layout(gtx Gtx) (d Dim) {
 	}
 	if i.Error != "" {
 		return layout.Flex{Axis: layout.Vertical}.Layout(gtx,
-			layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+			layout.Rigid(func(gtx Gtx) Dim {
 				return material.Body1(i.Theme, i.Error).Layout(gtx)
 			}),
 		)

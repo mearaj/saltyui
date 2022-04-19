@@ -3,21 +3,22 @@ module github.com/mearaj/saltyui
 go 1.18
 
 require (
-	gioui.org v0.0.0-20220405111203-69f982e26f21
+	gioui.org v0.0.0-20220419065847-6ddc13ce6691
 	gioui.org/x v0.0.0-20220318131752-bc7801f4bd03
+	github.com/maxence-charriere/go-app/v9 v9.4.1
 	github.com/sirupsen/logrus v1.8.1
-	go.mills.io/saltyim v0.0.0-20220405233043-81935022c1ec
-	golang.org/x/exp/shiny v0.0.0-20220328175248-053ad81199eb
-	golang.org/x/image v0.0.0-20220321031419-a8550c1d254a
+	go.mills.io/saltyim v0.0.0-20220415081146-af206c0aceba
+	golang.org/x/exp/shiny v0.0.0-20220414153411-bcd21879b8fd
+	golang.org/x/image v0.0.0-20220413100746-70e8d0d3baa9
 )
 
 require (
-	gioui.org/cpu v0.0.0-20220307141130-bd82e69a82aa // indirect
+	gioui.org/cpu v0.0.0-20220412190645-f1e9e8c3b1f7 // indirect
 	gioui.org/shader v1.0.6 // indirect
-	git.mills.io/prologic/msgbus v0.1.19 // indirect
+	git.mills.io/prologic/msgbus v0.1.20 // indirect
 	github.com/ScaleFT/sshkeys v0.0.0-20200327173127-6142f742bca5 // indirect
 	github.com/andybalholm/brotli v1.0.4 // indirect
-	github.com/avast/retry-go v2.7.0+incompatible // indirect
+	github.com/avast/retry-go v3.0.0+incompatible // indirect
 	github.com/benoitkugler/textlayout v0.0.10 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
@@ -26,9 +27,10 @@ require (
 	github.com/dchest/bcrypt_pbkdf v0.0.0-20150205184540-83f37f9c154a // indirect
 	github.com/dchest/blake2b v1.0.0 // indirect
 	github.com/gioui/uax v0.2.1-0.20220325163150-e3d987515a12 // indirect
-	github.com/go-text/typesetting v0.0.0-20220112121102-58fe93c84506 // indirect
+	github.com/go-text/typesetting v0.0.0-20220411150340-35994bc27a7b // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/go-cmp v0.5.7 // indirect
+	github.com/google/uuid v1.3.0 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
@@ -66,9 +68,9 @@ require (
 	go.mills.io/salty v0.0.0-20220322161301-ce2b9f6573fa // indirect
 	go.yarn.social/lextwt v0.0.0-20220318224940-ae4228bbcb31 // indirect
 	go.yarn.social/types v0.0.0-20220304222359-9694f95ad749 // indirect
-	golang.org/x/crypto v0.0.0-20220321153916-2c7772ba3064 // indirect
-	golang.org/x/net v0.0.0-20220325170049-de3da57026de // indirect
-	golang.org/x/sys v0.0.0-20220405210540-1e041c57c461 // indirect
+	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4 // indirect
+	golang.org/x/net v0.0.0-20220418201149-a630d4f3e7a2 // indirect
+	golang.org/x/sys v0.0.0-20220412211240-33da011f77ad // indirect
 	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect

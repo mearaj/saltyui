@@ -17,7 +17,8 @@ type Page interface {
 type PageURL string
 
 const (
-	SettingsPageURL = "/settings"
-	NewChatPageURL  = "/new-chat"
-	ChatPageUrl     = "/chat"
+	SettingsPageURL   PageURL = "/settings"
+	IdentitiesPageURL PageURL = "/identities"
+	StartChatPageURL  PageURL = "/new-chat"
+	ChatRoomPageURL   PageURL = "/chat"
 )

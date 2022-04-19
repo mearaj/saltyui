@@ -6,11 +6,9 @@ import (
 	"gioui.org/layout"
 	"gioui.org/op/paint"
 	"gioui.org/unit"
-	"gioui.org/widget"
 	"gioui.org/widget/material"
 	"gioui.org/x/component"
 	"github.com/mearaj/saltyui/service"
-	"golang.org/x/exp/shiny/materialdesign/icons"
 	"golang.org/x/image/colornames"
 	"image/color"
 )
@@ -26,7 +24,7 @@ type AppManager struct {
 	*component.ModalLayer
 	BottomBar bool
 	*material.Theme
-	Service        *service.Service
+	Service        service.Service
 	isWindowLoaded bool
 	Constraints    layout.Constraints
 	Metric         unit.Metric
@@ -55,16 +53,12 @@ func (a *AppManager) init() {
 	navDrwTh.Bg, navDrwTh.Fg, navDrwTh.ContrastBg, navDrwTh.ContrastFg =
 		a.Theme.ContrastBg, a.Theme.ContrastFg, a.Theme.Bg, a.Theme.Fg
 	a.NavDrawer = NewNavDrawer("Salty UI", "Decentralized Chat App", a, &navDrwTh, a.ModalLayer)
-	settingsPage := NewSettingsPage(a, a.Theme)
-	newChatPage := NewNewChatPage(a, a.Theme)
-	settingsIcon, _ := widget.NewIcon(icons.ActionSettings)
-	newChatIcon, _ := widget.NewIcon(icons.CommunicationChat)
-	settingsNavItem := NewNavItem(settingsPage, a.NavDrawer, "Settings", settingsIcon, make([]*NavItem, 0), a.Theme, SettingsPageURL)
-	newChatNavItem := NewNavItem(newChatPage, a.NavDrawer, "New Chat", newChatIcon, make([]*NavItem, 0), a.Theme, NewChatPageURL)
+	settingsNavItem := NewSettingsItem(a, a.Theme)
+	newChatNavItem := NewStartChatItem(a, a.Theme)
 	a.AddRootNavItem(settingsNavItem)
 	a.AddRootNavItem(newChatNavItem)
 	a.history = make([]Page, 1)
-	a.currentPage = settingsPage
+	a.currentPage = settingsNavItem.Page()
 	a.history[0] = a.currentPage
 	a.Theme = material.NewTheme(gofont.Collection())
 }

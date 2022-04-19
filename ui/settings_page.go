@@ -7,6 +7,7 @@ import (
 	"gioui.org/widget"
 	"gioui.org/widget/material"
 	"gioui.org/x/component"
+	"github.com/mearaj/saltyui/alog"
 	"go.mills.io/saltyim"
 	"golang.org/x/exp/shiny/materialdesign/colornames"
 	"golang.org/x/exp/shiny/materialdesign/icons"
@@ -78,7 +79,7 @@ func NewSettingsPage(manager *AppManager, th *material.Theme) *SettingsPage {
 		},
 		errorNewIDAccordion: Accordion{
 			Theme: &errorTh,
-			Title: "Create New ID Error",
+			Title: "ID Error",
 			Animation: component.VisibilityAnimation{
 				State:    component.Visible,
 				Duration: time.Millisecond * 250,
@@ -110,7 +111,7 @@ func (s *SettingsPage) Layout(gtx Gtx) Dim {
 	th := s.Theme
 	if !s.loadedFromFile {
 		s.loadedFromFile = true
-		id := s.Service.CurrentIdentity()
+		id := s.Service.Identity()
 		if id != nil {
 			s.inputNewIDStr = id.Addr().String()
 			s.inputNewID.SetText(s.inputNewIDStr)
@@ -123,7 +124,7 @@ func (s *SettingsPage) Layout(gtx Gtx) Dim {
 	}
 	_, s.errorParseAddr = saltyim.ParseAddr(s.inputNewID.Text())
 	s.inputNewIDStr = s.inputNewID.Text()
-	return layout.UniformInset(unit.Dp(16)).Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+	return layout.UniformInset(unit.Dp(16)).Layout(gtx, func(gtx Gtx) Dim {
 		return layout.Flex{Axis: layout.Vertical}.Layout(gtx,
 			layout.Flexed(1.0, func(gtx Gtx) Dim {
 				s.List.Axis = layout.Vertical
@@ -230,18 +231,9 @@ func (s *SettingsPage) drawNewIDTextField(gtx Gtx) Dim {
 	if button.Clicked() && !s.creatingNewID {
 		s.creatingNewID = true
 		go func() {
-			prevID := s.Service.CurrentIdentity()
-			s.errorCreateNewID = s.Service.CreateIdentity(s.inputNewID.Text())
+			s.errorCreateNewID = <-s.Service.CreateID(s.inputNewID.Text())
 			if s.errorCreateNewID != nil {
 				s.errorNewIDAccordion.Animation.Appear(time.Now())
-			}
-			if prevID != nil && !s.Service.IsCurrentIDAddr(prevID.Addr().String()) {
-				for _, navItem := range s.AppManager.DrawerItems() {
-					if navItem.URL() == NewChatPageURL {
-						newChildren := make([]*NavItem, 0, 1)
-						navItem.ReplaceChildren(newChildren)
-					}
-				}
 			}
 			s.creatingNewID = false
 		}()
@@ -250,7 +242,8 @@ func (s *SettingsPage) drawNewIDTextField(gtx Gtx) Dim {
 }
 
 func (s *SettingsPage) drawIDDetailsAccordion(gtx Gtx) (d Dim) {
-	if s.Service.CurrentIdentity() != nil {
+	identity := s.Service.Identity()
+	if identity != nil {
 		if s.iDDetailsAccordion.Child == nil {
 			s.iDDetailsAccordion.Child = s.iDDetailsView.Layout
 		}
@@ -262,7 +255,7 @@ func (s *SettingsPage) drawIDDetailsAccordion(gtx Gtx) (d Dim) {
 }
 
 func (s *SettingsPage) drawErrorNewIDAccordion(gtx Gtx) (d Dim) {
-	if s.Service.CurrentIdentity() == nil && s.errorCreateNewID != nil {
+	if s.Service.Identity() == nil && s.errorCreateNewID != nil {
 		errView := ErrorView{}
 		s.errorNewIDAccordion.Child = errView.Layout
 		errView.Error = s.errorCreateNewID.Error()
@@ -292,8 +285,11 @@ func (s *SettingsPage) drawRegistrationButton(gtx Gtx) Dim {
 	if button.Clicked() && !s.registerLoading {
 		s.registerLoading = true
 		go func() {
-			s.errorRegister = s.Service.Register(s.inputNewID.Text())
+			s.errorRegister = <-s.Service.Register(s.inputNewID.Text())
 			s.registerLoading = false
+			if s.errorRegister != nil {
+				alog.Logger().Println(s.errorRegister)
+			}
 			s.Window.Invalidate()
 		}()
 	}

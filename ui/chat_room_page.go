@@ -7,15 +7,15 @@ import (
 	"gioui.org/widget"
 	"gioui.org/widget/material"
 	"gioui.org/x/component"
-	log "github.com/sirupsen/logrus"
+	"github.com/mearaj/saltyui/alog"
 	"golang.org/x/exp/shiny/materialdesign/icons"
 	"image"
 	"image/color"
 	"strings"
 )
 
-// ChatPage Always call NewClientPage function to create ChatPage page
-type ChatPage struct {
+// ChatRoomPage Always call NewChatRoomPage function to create ChatRoomPage page
+type ChatRoomPage struct {
 	layout.List
 	*AppManager
 	Theme            *material.Theme
@@ -25,16 +25,17 @@ type ChatPage struct {
 	buttonNavigation widget.Clickable
 	submitButton     widget.Clickable
 	navigationIcon   *widget.Icon
+	Title            string
 }
 
-// NewClientPage Always call this function to create ChatPage page
-func NewClientPage(manager *AppManager, th *material.Theme) *ChatPage {
+// NewChatRoomPage Always call this function to create ChatRoomPage page
+func NewChatRoomPage(manager *AppManager, th *material.Theme) *ChatRoomPage {
 	navIcon, _ := widget.NewIcon(icons.NavigationArrowBack)
 	iconSendMessage, _ := widget.NewIcon(icons.ContentSend)
 	if th == nil {
 		th = material.NewTheme(gofont.Collection())
 	}
-	return &ChatPage{
+	return &ChatRoomPage{
 		AppManager:      manager,
 		Theme:           th,
 		navigationIcon:  navIcon,
@@ -45,15 +46,15 @@ func NewClientPage(manager *AppManager, th *material.Theme) *ChatPage {
 	}
 }
 
-func (cp *ChatPage) Actions() []component.AppBarAction {
+func (cp *ChatRoomPage) Actions() []component.AppBarAction {
 	return []component.AppBarAction{}
 }
 
-func (cp *ChatPage) Overflow() []component.OverflowAction {
+func (cp *ChatRoomPage) Overflow() []component.OverflowAction {
 	return []component.OverflowAction{}
 }
 
-func (cp *ChatPage) Layout(gtx Gtx) Dim {
+func (cp *ChatRoomPage) Layout(gtx Gtx) Dim {
 	if cp.Theme == nil {
 		cp.Theme = material.NewTheme(gofont.Collection())
 	}
@@ -64,7 +65,7 @@ func (cp *ChatPage) Layout(gtx Gtx) Dim {
 	)
 }
 
-func (cp *ChatPage) DrawAppBar(gtx layout.Context) layout.Dimensions {
+func (cp *ChatRoomPage) DrawAppBar(gtx Gtx) Dim {
 	gtx.Constraints.Max.Y = gtx.Px(unit.Dp(56))
 	th := cp.Theme
 	if cp.buttonNavigation.Clicked() {
@@ -76,7 +77,7 @@ func (cp *ChatPage) DrawAppBar(gtx layout.Context) layout.Dimensions {
 	}.Layout(gtx,
 		layout.Rigid(func(gtx Gtx) Dim {
 			if cp.navigationIcon == nil {
-				return layout.Dimensions{}
+				return Dim{}
 			}
 			navigationIcon := cp.navigationIcon
 			button := material.IconButton(th, &cp.buttonNavigation, navigationIcon, "Nav Icon Button")
@@ -88,47 +89,54 @@ func (cp *ChatPage) DrawAppBar(gtx layout.Context) layout.Dimensions {
 		}),
 		layout.Rigid(func(gtx Gtx) Dim {
 			return layout.Inset{Left: unit.Dp(16)}.Layout(gtx, func(gtx Gtx) Dim {
-				titleText := cp.AppManager.SelectedNavItem().Name
+				titleText := cp.AppManager.SelectedItem().NavTitle()
 				title := material.Body1(th, titleText)
 				title.Color = th.Palette.ContrastFg
 				title.TextSize = unit.Dp(18)
 				return title.Layout(gtx)
 			})
 		}),
-		layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+		layout.Rigid(func(gtx Gtx) Dim {
 			return Dim{
 				Size:     image.Point{X: 0},
 				Baseline: 0,
 			}
 		}),
 	)
-	return layout.Dimensions{Size: gtx.Constraints.Max}
+	return Dim{Size: gtx.Constraints.Max}
 }
-func (cp *ChatPage) drawChatRoomList(gtx Gtx) Dim {
+func (cp *ChatRoomPage) drawChatRoomList(gtx Gtx) Dim {
 	gtx.Constraints.Min = gtx.Constraints.Max
 	return layout.Flex{}.Layout(gtx,
 		layout.Rigid(func(gtx Gtx) Dim {
 			inset := layout.UniformInset(unit.Dp(8))
 			return inset.Layout(gtx, func(gtx Gtx) Dim {
-				return cp.List.Layout(gtx, 1, cp.drawChatRoomListItem)
+				msgs := cp.Service.Messages(cp.SelectedItem().NavTitle())
+				cp.List.Axis = layout.Vertical
+				cp.List.ScrollToEnd = true
+				return cp.List.Layout(gtx, len(msgs), cp.drawChatRoomListItem)
 			})
 		}))
 }
-func (cp *ChatPage) drawChatRoomListItem(gtx Gtx, index int) Dim {
-	return material.Body1(cp.Theme, "Message here").Layout(gtx)
+func (cp *ChatRoomPage) drawChatRoomListItem(gtx Gtx, index int) Dim {
+	msgs := cp.Service.Messages(cp.SelectedItem().NavTitle())
+	return material.Body1(cp.Theme, msgs[index].Text).Layout(gtx)
 }
-func (cp *ChatPage) drawSendMsgField(gtx Gtx) Dim {
+func (cp *ChatRoomPage) drawSendMsgField(gtx Gtx) Dim {
 	if cp.submitButton.Clicked() {
 		canSend := strings.Trim(cp.inputMsgField.Text(), " ") != ""
-		currNavItem := cp.SelectedNavItem()
+		currNavItem := cp.SelectedItem()
 		canSend = canSend && currNavItem != nil
 		if canSend {
+			msg := cp.inputMsgField.Text()
+			cp.inputMsgField.Clear()
 			go func() {
-				err := cp.Service.SendMessage(currNavItem.Name, cp.inputMsgField.Text())
+				err := <-cp.Service.SendMessage(currNavItem.NavTitle(), msg)
+				cp.inputMsgField.Clear()
 				if err != nil {
-					log.Println(err)
+					alog.Logger().Errorln(err)
 				} else {
-					log.Println("successfully sent msg...")
+					alog.Logger().Println("successfully sent msg...")
 				}
 			}()
 		}

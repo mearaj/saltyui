@@ -6,6 +6,7 @@ import (
 	"gioui.org/layout"
 	"gioui.org/op"
 	"gioui.org/op/clip"
+	"gioui.org/text"
 	"gioui.org/unit"
 	"gioui.org/widget"
 	"gioui.org/widget/material"
@@ -22,10 +23,11 @@ type Accordion struct {
 	widget.Clickable
 	Child layout.Widget
 	*material.Theme
-	icon          *widget.Icon
-	Title         string
-	TitleIcon     *widget.Icon
-	ClickCallback func()
+	icon            *widget.Icon
+	Title           string
+	TitleIcon       *widget.Icon
+	ClickCallback   func()
+	NoToggleOnClick bool
 }
 
 func (a *Accordion) Layout(gtx Gtx) (d Dim) {
@@ -41,9 +43,11 @@ func (a *Accordion) Layout(gtx Gtx) (d Dim) {
 		a.Animation.State = component.Invisible
 	}
 	if a.Clicked() {
-		a.Animation.ToggleVisibility(gtx.Now)
 		if a.ClickCallback != nil {
 			a.ClickCallback()
+		}
+		if !a.NoToggleOnClick {
+			a.Animation.ToggleVisibility(gtx.Now)
 		}
 	}
 
@@ -64,9 +68,7 @@ func (a *Accordion) Layout(gtx Gtx) (d Dim) {
 					return layout.Inset{
 						Top:    unit.Dp(0),
 						Bottom: unit.Dp(6),
-						Left:   unit.Dp(12),
-						Right:  unit.Dp(12),
-					}.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+					}.Layout(gtx, func(gtx Gtx) Dim {
 						return a.Child(gtx)
 					})
 				}))
@@ -97,11 +99,11 @@ func (a *Accordion) layoutHeader(gtx Gtx) Dim {
 		return layout.Flex{Alignment: layout.Middle}.Layout(gtx,
 			layout.Flexed(1.0, func(gtx Gtx) Dim {
 				return layout.Flex{Alignment: layout.Middle}.Layout(gtx,
-					layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+					layout.Rigid(func(gtx Gtx) Dim {
 						if a.TitleIcon != nil {
-							return layout.Flex{}.Layout(gtx, layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+							return layout.Flex{}.Layout(gtx, layout.Rigid(func(gtx Gtx) Dim {
 								return a.TitleIcon.Layout(gtx, th.ContrastFg)
-							}), layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+							}), layout.Rigid(func(gtx Gtx) Dim {
 								return layout.Spacer{Width: unit.Dp(16)}.Layout(gtx)
 							}))
 						}
@@ -110,7 +112,10 @@ func (a *Accordion) layoutHeader(gtx Gtx) Dim {
 					layout.Rigid(func(gtx Gtx) Dim {
 						label := material.Label(th, unit.Dp(14), a.Title)
 						label.Color = th.ContrastFg
-						//label.Font.Weight = text.Bold
+						label.Font.Weight = text.Bold
+						//body := material.Body1(th, a.Title)
+						//body.Color = th.ContrastFg
+						//return body.Layout(gtx)
 						return layout.Center.Layout(gtx, component.TruncatingLabelStyle(label).Layout)
 					}),
 				)

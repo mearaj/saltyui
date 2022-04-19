@@ -21,7 +21,7 @@ func (l *Loader) Layout(gtx Gtx) Dim {
 		Spacing: layout.SpaceSides}.Layout(gtx,
 		layout.Flexed(1.0, func(gtx Gtx) Dim {
 			return layout.Center.Layout(gtx,
-				func(gtx layout.Context) layout.Dimensions {
+				func(gtx Gtx) Dim {
 					gtx.Constraints.Min.X = 56
 					gtx.Constraints.Min.Y = 56
 					loader := material.Loader(th)

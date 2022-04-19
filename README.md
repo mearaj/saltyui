@@ -60,3 +60,11 @@ Run the following to build the Web assets into `./web`:
 ```#!console
 gogio -target js -o ./web .
 ```
+
+## Troubleshooting
+
+### Wasm
+* Enable debugging in chrome [https://developer.chrome.com/blog/wasm-debugging-2020/](https://developer.chrome.com/blog/wasm-debugging-2020/)
+
+### Weird Issues
+* Inside was 

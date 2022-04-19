@@ -8,17 +8,7 @@ import (
 )
 
 func init() {
-	lvl, ok := os.LookupEnv("LOG_LEVEL")
-	if !ok {
-		return
-	}
-	// parse string, this is built-in feature of logrus
-	ll, err := log.ParseLevel(lvl)
-	if err != nil {
-		return
-	}
-	// set global log level
-	log.SetLevel(ll)
+	//log.SetLevel(log.DebugLevel)
 }
 
 func main() {

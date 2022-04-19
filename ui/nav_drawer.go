@@ -15,11 +15,11 @@ import (
 )
 
 type NavDrawer struct {
-	Title        string
+	DrawerTitle  string
 	Subtitle     string
 	Anchor       component.VerticalAnchorPosition
-	selectedItem *NavItem
-	drawerItems  []*NavItem
+	selectedItem NavItem
+	drawerItems  []NavItem
 	navList      widget.List
 	navAnim      component.VisibilityAnimation
 	*material.Theme
@@ -27,17 +27,18 @@ type NavDrawer struct {
 	scrollList widget.List
 	*component.ModalLayer
 	*component.ModalSheet
+	maxWidth int
 }
 
 func NewNavDrawer(title, subtitle string, manager *AppManager, th *material.Theme, layer *component.ModalLayer) *NavDrawer {
 	sheet := component.NewModalSheet(layer)
 	m := NavDrawer{
-		Title:      title,
-		Subtitle:   subtitle,
-		AppManager: manager,
-		Theme:      th,
-		ModalLayer: layer,
-		ModalSheet: sheet,
+		DrawerTitle: title,
+		Subtitle:    subtitle,
+		AppManager:  manager,
+		Theme:       th,
+		ModalLayer:  layer,
+		ModalSheet:  sheet,
 		navAnim: component.VisibilityAnimation{
 			State:    component.Visible,
 			Duration: time.Millisecond * 250,
@@ -46,14 +47,27 @@ func NewNavDrawer(title, subtitle string, manager *AppManager, th *material.Them
 	return &m
 }
 
-func (n *NavDrawer) AddRootNavItem(item *NavItem) {
+func (n *NavDrawer) SetSelectedItem(item NavItem) {
+	n.selectedItem = item
+}
+
+func (n *NavDrawer) SelectedItem() NavItem {
+	return n.selectedItem
+}
+
+func (n *NavDrawer) AddRootNavItem(item NavItem) {
 	n.drawerItems = append(n.drawerItems, item)
 	if len(n.drawerItems) == 1 {
-		n.drawerItems[0].selectedItem = n.drawerItems[0]
+		n.selectedItem = n.drawerItems[0]
 	}
 }
 
+func (n *NavDrawer) MaxWidth() int {
+	return n.maxWidth
+}
+
 func (n *NavDrawer) Layout(gtx Gtx) Dim {
+	n.maxWidth = gtx.Constraints.Max.X
 	if n.useModalDrawer() {
 		n.navAnim.State = component.Invisible
 		return n.DrawerModalLayout()
@@ -104,7 +118,7 @@ func (n *NavDrawer) LayoutContents(gtx Gtx, anim *component.VisibilityAnimation)
 					layout.Rigid(func(gtx Gtx) Dim {
 						gtx.Constraints.Max.Y = gtx.Px(unit.Dp(36))
 						gtx.Constraints.Min = gtx.Constraints.Max
-						title := material.Label(th, unit.Dp(18), n.Title)
+						title := material.Label(th, unit.Dp(18), n.DrawerTitle)
 						title.Font.Weight = text.Bold
 						return layout.SW.Layout(gtx, title.Layout)
 					}),
@@ -127,10 +141,9 @@ func (n *NavDrawer) LayoutContents(gtx Gtx, anim *component.VisibilityAnimation)
 func (n *NavDrawer) layoutNavList(gtx Gtx, th *material.Theme, anim *component.VisibilityAnimation) Dim {
 	n.navList.Axis = layout.Vertical
 	inset := layout.Inset{Left: unit.Dp(16), Top: unit.Dp(16), Right: unit.Dp(6)}
-	xConstraints := gtx.Constraints.Max.X
 	dim := material.List(th, &n.scrollList).Layout(gtx, 1, func(gtx Gtx, index int) Dim {
-		return inset.Layout(gtx, func(gtx Gtx) Dim {
-			gtx.Constraints.Max.X = xConstraints - 24.0
+		dim := inset.Layout(gtx, func(gtx Gtx) Dim {
+			gtx.Constraints.Max.X = n.MaxWidth() - 24.0
 			dim := material.List(th, &n.navList).Layout(gtx, len(n.drawerItems), func(gtx Gtx, index int) Dim {
 				inset := layout.Inset{Top: unit.Dp(8)}
 				dim := inset.Layout(gtx, func(gtx Gtx) Dim {
@@ -140,25 +153,28 @@ func (n *NavDrawer) layoutNavList(gtx Gtx, th *material.Theme, anim *component.V
 			})
 			return dim
 		})
+		return dim
 	})
 	return dim
 }
-func (n *NavDrawer) SetSelectedItem(item *NavItem) {
-	n.selectedItem = item
-}
-func (n *NavDrawer) SelectedNavItem() *NavItem {
-	return n.selectedItem
-}
-func (n *NavDrawer) DrawerItems() []*NavItem {
+
+func (n *NavDrawer) DrawerItems() []NavItem {
 	return n.drawerItems
+}
+
+func (n *NavDrawer) setNavDestinationRecursively(navItem NavItem, page Page) {
+	if navItem.Page() == page {
+		n.SetSelectedItem(navItem)
+		return
+	}
+	for _, item := range navItem.Children() {
+		n.setNavDestinationRecursively(item, page)
+	}
 }
 
 func (n *NavDrawer) SetNavDestination(page Page) {
 	for _, item := range n.DrawerItems() {
-		if item.Page() == page {
-			n.SetSelectedItem(item)
-			break
-		}
+		n.setNavDestinationRecursively(item, page)
 	}
 }
 
