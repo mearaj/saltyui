@@ -15,7 +15,8 @@ type IDDetailsView struct {
 	copyButton   widget.Clickable
 	configButton widget.Clickable
 	*AppManager
-	Contents string
+	Contents        string
+	exportingConfig bool
 }
 
 func (i *IDDetailsView) Layout(gtx Gtx) (d Dim) {
@@ -28,11 +29,15 @@ func (i *IDDetailsView) Layout(gtx Gtx) (d Dim) {
 		if i.copyButton.Clicked() {
 			i.AppManager.Window.WriteClipboard(contents)
 		}
-		if i.configButton.Clicked() {
-			_, err := i.Service.ConfigJSON()
-			if err != nil {
-				alog.Logger().Errorln(err)
-			}
+		if i.configButton.Clicked() && !i.exportingConfig {
+			i.exportingConfig = true
+			go func() {
+				_, err := i.Service.ConfigJSON()
+				if err != nil {
+					alog.Logger().Errorln(err)
+				}
+				i.exportingConfig = false
+			}()
 		}
 		return layout.Flex{Axis: layout.Vertical}.Layout(gtx,
 			layout.Rigid(func(gtx Gtx) Dim {
@@ -50,7 +55,11 @@ func (i *IDDetailsView) Layout(gtx Gtx) (d Dim) {
 					}),
 					layout.Rigid(func(gtx2 Gtx) Dim {
 						gtx.Constraints.Max.X = maxWidth / 3
-						return material.Button(i.Theme, &i.configButton, "Export config").Layout(gtx)
+						button := &i.configButton
+						if i.exportingConfig {
+							button = &widget.Clickable{}
+						}
+						return material.Button(i.Theme, button, "Export config").Layout(gtx)
 					}),
 				)
 			}),

@@ -185,6 +185,12 @@ func (nc *StartChatPage) drawNewChatTextField(gtx Gtx) Dim {
 			if nc.errorNewChat != nil {
 				nc.errorNewChatAccordion.Animation.Appear(gtx.Now)
 				alog.Logger().Errorln(nc.errorNewChat)
+			} else {
+				if nc.CurrentPage() == nc {
+					if navItem, ok := nc.SelectedItem().(*StartChatNavItem); ok {
+						navItem.UpdateAndNavigate()
+					}
+				}
 			}
 			nc.addingNewClient = false
 		}()

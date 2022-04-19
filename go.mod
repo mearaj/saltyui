@@ -5,7 +5,6 @@ go 1.18
 require (
 	gioui.org v0.0.0-20220419065847-6ddc13ce6691
 	gioui.org/x v0.0.0-20220318131752-bc7801f4bd03
-	github.com/maxence-charriere/go-app/v9 v9.4.1
 	github.com/sirupsen/logrus v1.8.1
 	go.mills.io/saltyim v0.0.0-20220415081146-af206c0aceba
 	golang.org/x/exp/shiny v0.0.0-20220414153411-bcd21879b8fd
@@ -30,7 +29,6 @@ require (
 	github.com/go-text/typesetting v0.0.0-20220411150340-35994bc27a7b // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/go-cmp v0.5.7 // indirect
-	github.com/google/uuid v1.3.0 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect

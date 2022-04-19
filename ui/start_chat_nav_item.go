@@ -23,7 +23,8 @@ type StartChatNavItem struct {
 	*material.Theme
 	ThemeAlt *material.Theme
 	Accordion
-	url PageURL
+	url               PageURL
+	updateAndNavigate bool
 }
 
 func (n *StartChatNavItem) NavTitle() string {
@@ -101,6 +102,10 @@ func (n *StartChatNavItem) Layout(gtx Gtx) Dim {
 				return layout.Flex{Axis: layout.Vertical}.Layout(gtx, children...)
 			})
 		}
+		if n.updateAndNavigate {
+			n.SetSelectedItem(n.Children()[len(n.Children())-1])
+			n.Window.Invalidate()
+		}
 	} else {
 		n.Accordion.Child = nil
 	}
@@ -137,4 +142,10 @@ func (n *StartChatNavItem) ReplaceChildren(children []NavItem) {
 }
 func (n *StartChatNavItem) URL() PageURL {
 	return n.url
+}
+
+// UpdateAndNavigate when a contact is created or deleted,
+//  it should be called for setting selectedNavItem
+func (n *StartChatNavItem) UpdateAndNavigate() {
+	n.updateAndNavigate = true
 }

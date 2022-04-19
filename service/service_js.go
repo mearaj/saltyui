@@ -128,17 +128,19 @@ func (s *service) loadIdentities() <-chan error {
 		req.Set("onsuccess", js.FuncOf(func(this js.Value, args []js.Value) any {
 			defer func() { recoverPanicCloseCh(errCh, err, alog.Logger()) }()
 			accountsJS := args[0].Get("target").Get("result")
-			sizeOFArray := accountsJS.Get("length").Int()
-			for i := 0; i < sizeOFArray; i++ {
-				eachAccountJS := accountsJS.Index(i)
-				addrContents := eachAccountJS.Get("Contents").String()
-				idOption := saltyim.WithIdentityBytes([]byte(addrContents))
-				var saltyId *saltyim.Identity
-				saltyId, err = saltyim.GetIdentity(idOption)
-				if err != nil {
-					alog.Logger().Errorln(err)
+			if accountsJS.Truthy() {
+				sizeOFArray := accountsJS.Get("length").Int()
+				for i := 0; i < sizeOFArray; i++ {
+					eachAccountJS := accountsJS.Index(i)
+					addrContents := eachAccountJS.Get("Contents").String()
+					idOption := saltyim.WithIdentityBytes([]byte(addrContents))
+					var saltyId *saltyim.Identity
+					saltyId, err = saltyim.GetIdentity(idOption)
+					if err != nil {
+						alog.Logger().Errorln(err)
+					}
+					s.addIdentity(saltyId)
 				}
-				s.addIdentity(saltyId)
 			}
 			return nil
 		}))
@@ -275,8 +277,7 @@ func (s *service) saveIdentity(identity *saltyim.Identity) <-chan error {
 	var err error
 	if s.Identity() == nil || identity == nil {
 		err = errors.New("current id or provided id is nil")
-		errCh <- err
-		close(errCh)
+		recoverPanicCloseCh(errCh, err, alog.Logger())
 		return errCh
 	}
 	go func() {
@@ -313,14 +314,12 @@ func (s *service) saveContacts() <-chan error {
 	var err error
 	if s.Identity() == nil {
 		err = errors.New("cannot save contacts, current id is nil")
-		errCh <- err
-		close(errCh)
-		return errCh
 	}
 	if len(s.ContactsAddresses()) == 0 {
 		err = errors.New("there are no contacts to save")
-		errCh <- err
-		close(errCh)
+	}
+	if err != nil {
+		recoverPanicCloseCh(errCh, err, alog.Logger())
 		return errCh
 	}
 	go func() {
@@ -359,8 +358,7 @@ func (s *service) loadContacts() <-chan error {
 	var err error
 	if s.Identity() == nil {
 		err = errors.New("cannot load contacts, current id is nil")
-		errCh <- err
-		close(errCh)
+		recoverPanicCloseCh(errCh, err, alog.Logger())
 		return errCh
 	}
 	go func() {
@@ -405,8 +403,7 @@ func (s *service) saveMessage(message Message) <-chan error {
 	var err error
 	if s.Identity() == nil {
 		err = errors.New("cannot save message, current id is nil")
-		errCh <- err
-		close(errCh)
+		recoverPanicCloseCh(errCh, err, alog.Logger())
 		return errCh
 	}
 	go func() {
@@ -459,8 +456,7 @@ func (s *service) loadMessages() <-chan error {
 	var err error
 	if s.Identity() == nil {
 		err = errors.New("cannot save message, current id is nil")
-		errCh <- err
-		close(errCh)
+		recoverPanicCloseCh(errCh, err, alog.Logger())
 		return errCh
 	}
 	go func() {
@@ -474,19 +470,23 @@ func (s *service) loadMessages() <-chan error {
 			req.Set("onsuccess", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 				defer func() { recoverPanicCloseCh(errCh2, err, alog.Logger()) }()
 				messagesJS := args[0].Get("target").Get("result")
-				messagesArr := messagesJS.Get("Messages")
-				sizeOFArray := messagesArr.Get("length").Int()
-				for i := 0; i < sizeOFArray; i++ {
-					msg := messagesArr.Index(i)
-					s.addMessage(Message{
-						UserAddr:    userAddr,
-						ContactAddr: eachAddr.String(),
-						From:        msg.Get("From").String(),
-						To:          msg.Get("To").String(),
-						Created:     msg.Get("Created").String(),
-						Text:        msg.Get("Text").String(),
-						Key:         msg.Get("Key").String(),
-					})
+				if messagesJS.Truthy() {
+					messagesArr := messagesJS.Get("Messages")
+					if messagesArr.Truthy() {
+						sizeOFArray := messagesArr.Get("length").Int()
+						for i := 0; i < sizeOFArray; i++ {
+							msg := messagesArr.Index(i)
+							s.addMessage(Message{
+								UserAddr:    userAddr,
+								ContactAddr: eachAddr.String(),
+								From:        msg.Get("From").String(),
+								To:          msg.Get("To").String(),
+								Created:     msg.Get("Created").String(),
+								Text:        msg.Get("Text").String(),
+								Key:         msg.Get("Key").String(),
+							})
+						}
+					}
 				}
 				return nil
 			}))
