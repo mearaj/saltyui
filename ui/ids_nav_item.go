@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-type IdentitiesNavItem struct {
+type IDsNavItem struct {
 	page Page
 	*AppManager
 	Name     string
@@ -25,15 +25,15 @@ type IdentitiesNavItem struct {
 	url PageURL
 }
 
-func (n *IdentitiesNavItem) NavTitle() string {
+func (n *IDsNavItem) NavTitle() string {
 	return n.Name
 }
 
-func NewIdentitiesItem(manager *AppManager, theme *material.Theme) *IdentitiesNavItem {
-	identitiesPage := NewIdentitiesPage(manager, theme)
+func NewIDsNavItem(manager *AppManager, theme *material.Theme) *IDsNavItem {
+	identitiesPage := NewIDPage(manager, theme)
 	icon, _ := widget.NewIcon(icons.ActionAccountBox)
 
-	return &IdentitiesNavItem{
+	return &IDsNavItem{
 		page:       identitiesPage,
 		AppManager: manager,
 		Name:       "Identities",
@@ -53,17 +53,17 @@ func NewIdentitiesItem(manager *AppManager, theme *material.Theme) *IdentitiesNa
 	}
 }
 
-func (n *IdentitiesNavItem) OnClick() {
+func (n *IDsNavItem) OnClick() {
 	n.SetSelectedItem(n)
 	n.AppManager.PushPage(n.Page())
 }
 
-func (n *IdentitiesNavItem) IsSelected() bool {
+func (n *IDsNavItem) IsSelected() bool {
 	ok := n.NavDrawer.selectedItem == n
 	return ok
 }
 
-func (n *IdentitiesNavItem) Layout(gtx Gtx) Dim {
+func (n *IDsNavItem) Layout(gtx Gtx) Dim {
 	if n.Theme == nil {
 		n.Theme = material.NewTheme(gofont.Collection())
 	}
@@ -100,15 +100,15 @@ func (n *IdentitiesNavItem) Layout(gtx Gtx) Dim {
 	})
 }
 
-func (n *IdentitiesNavItem) Page() Page {
+func (n *IDsNavItem) Page() Page {
 	return n.page
 }
 
-func (n *IdentitiesNavItem) Children() []NavItem {
+func (n *IDsNavItem) Children() []NavItem {
 	return n.children
 }
 
-func (n *IdentitiesNavItem) AddChild(item *IdentitiesNavItem) {
+func (n *IDsNavItem) AddChild(item *IDsNavItem) {
 	if n.children == nil {
 		n.children = make([]NavItem, 0, 1)
 	}
@@ -116,10 +116,10 @@ func (n *IdentitiesNavItem) AddChild(item *IdentitiesNavItem) {
 	n.children = append(n.children, item)
 }
 
-func (n *IdentitiesNavItem) ReplaceChildren(children []NavItem) {
+func (n *IDsNavItem) ReplaceChildren(children []NavItem) {
 	n.Child = nil
 	n.children = children
 }
-func (n *IdentitiesNavItem) URL() PageURL {
+func (n *IDsNavItem) URL() PageURL {
 	return n.url
 }

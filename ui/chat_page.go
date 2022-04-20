@@ -16,8 +16,8 @@ import (
 	"time"
 )
 
-// StartChatPage Always call NewStartChatPage function to create StartChatPage page
-type StartChatPage struct {
+// ChatPage Always call NewChatPage function to create ChatPage page
+type ChatPage struct {
 	widget.List
 	*AppManager
 	Theme                 *material.Theme
@@ -34,8 +34,8 @@ type StartChatPage struct {
 	addingNewClient       bool
 }
 
-// NewStartChatPage Always call this function to create StartChatPage page
-func NewStartChatPage(manager *AppManager, th *material.Theme) *StartChatPage {
+// NewChatPage Always call this function to create ChatPage page
+func NewChatPage(manager *AppManager, th *material.Theme) *ChatPage {
 	navIcon, _ := widget.NewIcon(icons.NavigationMenu)
 	iconNewChat, _ := widget.NewIcon(icons.ContentCreate)
 	if th == nil {
@@ -43,7 +43,7 @@ func NewStartChatPage(manager *AppManager, th *material.Theme) *StartChatPage {
 	}
 	errorTh := *th
 	errorTh.ContrastBg = color.NRGBA(colornames.Red500)
-	return &StartChatPage{
+	return &ChatPage{
 		AppManager:     manager,
 		Theme:          th,
 		title:          "New Chat",
@@ -61,15 +61,15 @@ func NewStartChatPage(manager *AppManager, th *material.Theme) *StartChatPage {
 	}
 }
 
-func (nc *StartChatPage) Actions() []component.AppBarAction {
+func (nc *ChatPage) Actions() []component.AppBarAction {
 	return []component.AppBarAction{}
 }
 
-func (nc *StartChatPage) Overflow() []component.OverflowAction {
+func (nc *ChatPage) Overflow() []component.OverflowAction {
 	return []component.OverflowAction{}
 }
 
-func (nc *StartChatPage) Layout(gtx Gtx) Dim {
+func (nc *ChatPage) Layout(gtx Gtx) Dim {
 	if nc.Theme == nil {
 		nc.Theme = material.NewTheme(gofont.Collection())
 	}
@@ -110,7 +110,7 @@ func (nc *StartChatPage) Layout(gtx Gtx) Dim {
 	return d
 }
 
-func (nc *StartChatPage) DrawAppBar(gtx Gtx) Dim {
+func (nc *ChatPage) DrawAppBar(gtx Gtx) Dim {
 	gtx.Constraints.Max.Y = gtx.Px(unit.Dp(56))
 	th := nc.Theme
 	if nc.buttonNavigation.Clicked() {
@@ -151,7 +151,7 @@ func (nc *StartChatPage) DrawAppBar(gtx Gtx) Dim {
 	return Dim{Size: gtx.Constraints.Max}
 }
 
-func (nc *StartChatPage) drawNewChatTextField(gtx Gtx) Dim {
+func (nc *ChatPage) drawNewChatTextField(gtx Gtx) Dim {
 	labelText := "New Chat"
 	labelHintText := "Start Chat with user@domain"
 	buttonText := "New Chat"
@@ -186,10 +186,8 @@ func (nc *StartChatPage) drawNewChatTextField(gtx Gtx) Dim {
 				nc.errorNewChatAccordion.Animation.Appear(gtx.Now)
 				alog.Logger().Errorln(nc.errorNewChat)
 			} else {
-				if nc.CurrentPage() == nc {
-					if navItem, ok := nc.SelectedItem().(*StartChatNavItem); ok {
-						navItem.UpdateAndNavigate()
-					}
+				if navItem, ok := nc.SelectedItem().(*ChatNavItem); ok {
+					navItem.UpdateAndNavigate()
 				}
 			}
 			nc.addingNewClient = false
@@ -198,7 +196,7 @@ func (nc *StartChatPage) drawNewChatTextField(gtx Gtx) Dim {
 	return drawFormFieldRowWithLabel(gtx, nc.Theme, labelText, labelHintText, &nc.inputNewChat, &ib)
 }
 
-func (nc *StartChatPage) drawErrorNewIDAccordion(gtx Gtx) (d Dim) {
+func (nc *ChatPage) drawErrorNewIDAccordion(gtx Gtx) (d Dim) {
 	if nc.errorNewChat != nil {
 		errView := ErrorView{}
 		nc.errorNewChatAccordion.Child = errView.Layout

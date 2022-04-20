@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/mearaj/saltyui/alog"
@@ -17,7 +16,7 @@ type Service interface {
 	IsCurrIDAddr(addrStr string) bool
 	Identity() *saltyim.Identity
 	Register(addrStr string) <-chan error
-	CreateID(addrStr string) <-chan error
+	CreateIDFromAddrStr(addrStr string) <-chan error
 	SendMessage(addrStr string, msg string) <-chan error
 	NewChat(addrStr string) <-chan error
 	GetContactAddr(addrStr string) *saltyim.Addr
@@ -25,6 +24,7 @@ type Service interface {
 	Identities() []*saltyim.Identity
 	ConfigJSON() (*ConfigJSON, error)
 	Messages(contactAddr string) []Message
+	CreateIDFromBytes(bs []byte) <-chan error
 }
 
 type ConfigJSON struct {
@@ -79,7 +79,7 @@ func (s *service) ContactsAddresses() []*saltyim.Addr {
 	return s.contactsAddresses
 }
 
-func (s *service) CreateID(addressStr string) <-chan error {
+func (s *service) CreateIDFromAddrStr(addressStr string) <-chan error {
 	errCh := make(chan error, 1)
 	go func() {
 		var err error
@@ -93,6 +93,7 @@ func (s *service) CreateID(addressStr string) <-chan error {
 		}
 		addr, err := saltyim.ParseAddr(addressStr)
 		if err != nil {
+			alog.Logger().Errorln(err)
 			s.clearCredentials()
 			s.setIdentity(nil)
 			return
@@ -100,22 +101,27 @@ func (s *service) CreateID(addressStr string) <-chan error {
 			var currID *saltyim.Identity
 			currID, err = saltyim.CreateIdentity(saltyim.WithIdentityAddr(addr))
 			if err != nil {
-				s.clearCredentials()
-				s.setIdentity(currID)
+				alog.Logger().Errorln(err)
 				return
 			} else {
+				if !isCurrent {
+					s.clearCredentials()
+				}
 				s.setIdentity(currID)
 				s.addIdentity(currID)
 				err = <-s.saveIdentity(currID)
 				if err != nil {
+					alog.Logger().Errorln(err)
 					return
 				}
 				err = <-s.createSaltyClient()
 				if err != nil {
+					alog.Logger().Errorln(err)
 					return
 				}
 				err = <-s.saveIdentities()
 				if err != nil {
+					alog.Logger().Errorln(err)
 					return
 				}
 				if !s.IsClientRunning() {
@@ -126,6 +132,45 @@ func (s *service) CreateID(addressStr string) <-chan error {
 	}()
 	return errCh
 }
+func (s *service) CreateIDFromBytes(bs []byte) <-chan error {
+	errCh := make(chan error, 1)
+	go func() {
+		var err error
+		defer func() {
+			recoverPanicCloseCh(errCh, err, alog.Logger())
+		}()
+		var currID *saltyim.Identity
+		currID, err = saltyim.GetIdentity(saltyim.WithIdentityBytes(bs))
+		if err != nil {
+			return
+		} else {
+			// clear Credentials if only address changes
+			isCurrent := s.IsCurrIDAddr(currID.Addr().String())
+			if !isCurrent {
+				s.clearCredentials()
+			}
+			s.setIdentity(currID)
+			s.addIdentity(currID)
+			err = <-s.saveIdentity(currID)
+			if err != nil {
+				return
+			}
+			err = <-s.createSaltyClient()
+			if err != nil {
+				return
+			}
+			err = <-s.saveIdentities()
+			if err != nil {
+				return
+			}
+			if !s.IsClientRunning() {
+				s.runClientService()
+			}
+		}
+	}()
+	return errCh
+}
+
 func (s *service) Register(addrStr string) <-chan error {
 	errCh := make(chan error, 1)
 	go func() {
@@ -135,7 +180,7 @@ func (s *service) Register(addrStr string) <-chan error {
 		}()
 		if s.Identity() == nil {
 			select {
-			case err = <-s.CreateID(addrStr):
+			case err = <-s.CreateIDFromAddrStr(addrStr):
 				if err != nil {
 					s.isRegistered = false
 					return
@@ -195,15 +240,6 @@ func (s *service) ConfigJSON() (*ConfigJSON, error) {
 		User:   s.Identity().Addr().User,
 		Domain: s.Identity().Addr().Domain,
 	}
-	// Todo: Just for debug, remove it
-	st, err := json.MarshalIndent(&configJson.Config, "", "  ")
-	if err != nil {
-		alog.Logger().Println(err)
-		err = nil
-	}
-	fmt.Println(string(st))
-	fmt.Println(hash)
-
 	s.configJSON = &configJson
 	return s.configJSON, nil
 }
@@ -309,6 +345,7 @@ func (s *service) clearCredentials() {
 	s.saltyClient = nil
 	s.contactsAddresses = nil
 	s.configJSON = nil
+	s.messages = nil
 }
 
 func (s *service) createSaltyClient() <-chan error {
@@ -424,8 +461,7 @@ func (s *service) NewChat(addrStr string) <-chan error {
 			s.contactsAddresses = make([]*saltyim.Addr, 0)
 		} else {
 			if cl := s.GetContactAddr(addrStr); cl != nil {
-				// Todo: it's impacting UI
-				// err = errors.New("client already exist")
+				err = errors.New("client already exist")
 				return
 			}
 		}

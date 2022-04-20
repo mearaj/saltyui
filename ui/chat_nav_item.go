@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-type StartChatNavItem struct {
+type ChatNavItem struct {
 	page         Page
 	chatRoomPage *ChatRoomPage
 	*AppManager
@@ -27,15 +27,15 @@ type StartChatNavItem struct {
 	updateAndNavigate bool
 }
 
-func (n *StartChatNavItem) NavTitle() string {
+func (n *ChatNavItem) NavTitle() string {
 	return n.Name
 }
 
-func NewStartChatItem(manager *AppManager, theme *material.Theme) *StartChatNavItem {
-	newChatPage := NewStartChatPage(manager, theme)
+func NewChatNavItem(manager *AppManager, theme *material.Theme) *ChatNavItem {
+	newChatPage := NewChatPage(manager, theme)
 	chatRoomPage := NewChatRoomPage(manager, theme)
 	icon, _ := widget.NewIcon(icons.ContentAddBox)
-	return &StartChatNavItem{
+	return &ChatNavItem{
 		page:         newChatPage,
 		chatRoomPage: chatRoomPage,
 		AppManager:   manager,
@@ -56,7 +56,7 @@ func NewStartChatItem(manager *AppManager, theme *material.Theme) *StartChatNavI
 	}
 }
 
-func (n *StartChatNavItem) ClickCallback() {
+func (n *ChatNavItem) ClickCallback() {
 	if n.CurrentPage() != n.Page() {
 		n.Accordion.NoToggleOnClick = true
 	} else {
@@ -66,12 +66,12 @@ func (n *StartChatNavItem) ClickCallback() {
 	n.AppManager.PushPage(n.Page())
 }
 
-func (n *StartChatNavItem) IsSelected() bool {
+func (n *ChatNavItem) IsSelected() bool {
 	ok := n.NavDrawer.selectedItem == n
 	return ok
 }
 
-func (n *StartChatNavItem) Layout(gtx Gtx) Dim {
+func (n *ChatNavItem) Layout(gtx Gtx) Dim {
 	if n.Theme == nil {
 		n.Theme = material.NewTheme(gofont.Collection())
 	}
@@ -104,6 +104,8 @@ func (n *StartChatNavItem) Layout(gtx Gtx) Dim {
 		}
 		if n.updateAndNavigate {
 			n.SetSelectedItem(n.Children()[len(n.Children())-1])
+			n.updateAndNavigate = false
+			n.PushPage(n.Children()[len(n.Children())-1].Page())
 			n.Window.Invalidate()
 		}
 	} else {
@@ -120,15 +122,15 @@ func (n *StartChatNavItem) Layout(gtx Gtx) Dim {
 	})
 }
 
-func (n *StartChatNavItem) Page() Page {
+func (n *ChatNavItem) Page() Page {
 	return n.page
 }
 
-func (n *StartChatNavItem) Children() []NavItem {
+func (n *ChatNavItem) Children() []NavItem {
 	return n.children
 }
 
-func (n *StartChatNavItem) AddChild(item *ChatRoomNavItem) {
+func (n *ChatNavItem) AddChild(item *ChatRoomNavItem) {
 	if n.children == nil {
 		n.children = make([]NavItem, 0, 1)
 	}
@@ -136,16 +138,16 @@ func (n *StartChatNavItem) AddChild(item *ChatRoomNavItem) {
 	n.children = append(n.children, item)
 }
 
-func (n *StartChatNavItem) ReplaceChildren(children []NavItem) {
+func (n *ChatNavItem) ReplaceChildren(children []NavItem) {
 	n.Child = nil
 	n.children = children
 }
-func (n *StartChatNavItem) URL() PageURL {
+func (n *ChatNavItem) URL() PageURL {
 	return n.url
 }
 
 // UpdateAndNavigate when a contact is created or deleted,
 //  it should be called for setting selectedNavItem
-func (n *StartChatNavItem) UpdateAndNavigate() {
+func (n *ChatNavItem) UpdateAndNavigate() {
 	n.updateAndNavigate = true
 }

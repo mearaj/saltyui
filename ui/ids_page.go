@@ -13,8 +13,8 @@ import (
 	"image/color"
 )
 
-// IdentitiesPage Always call NewIdentitiesPage function to create IdentitiesPage page
-type IdentitiesPage struct {
+// IDPage Always call NewIDPage function to create IDPage page
+type IDPage struct {
 	layout.List
 	*AppManager
 	Theme            *material.Theme
@@ -25,11 +25,11 @@ type IdentitiesPage struct {
 	buttonNewChat    widget.Clickable
 	buttonNavigation widget.Clickable
 	navigationIcon   *widget.Icon
-	identitiesViews  []*IdentityListItem
+	identitiesViews  []*IDListItem
 }
 
-// NewIdentitiesPage Always call this function to create IdentitiesPage page
-func NewIdentitiesPage(manager *AppManager, th *material.Theme) *IdentitiesPage {
+// NewIDPage Always call this function to create IDPage page
+func NewIDPage(manager *AppManager, th *material.Theme) *IDPage {
 	navIcon, _ := widget.NewIcon(icons.NavigationArrowBack)
 	iconNewChat, _ := widget.NewIcon(icons.ContentCreate)
 	if th == nil {
@@ -37,39 +37,49 @@ func NewIdentitiesPage(manager *AppManager, th *material.Theme) *IdentitiesPage 
 	}
 	errorTh := *th
 	errorTh.ContrastBg = color.NRGBA(colornames.Red500)
-	return &IdentitiesPage{
+	return &IDPage{
 		AppManager:      manager,
 		Theme:           th,
 		title:           "Identities",
 		navigationIcon:  navIcon,
 		iconNewChat:     iconNewChat,
 		List:            layout.List{Axis: layout.Vertical},
-		identitiesViews: []*IdentityListItem{},
+		identitiesViews: []*IDListItem{},
 	}
 }
 
-func (ids *IdentitiesPage) Actions() []component.AppBarAction {
+func (ids *IDPage) Actions() []component.AppBarAction {
 	return []component.AppBarAction{}
 }
 
-func (ids *IdentitiesPage) Overflow() []component.OverflowAction {
+func (ids *IDPage) Overflow() []component.OverflowAction {
 	return []component.OverflowAction{}
 }
 
-func (ids *IdentitiesPage) Layout(gtx Gtx) Dim {
+func (ids *IDPage) Layout(gtx Gtx) Dim {
 	if ids.Theme == nil {
 		ids.Theme = material.NewTheme(gofont.Collection())
 	}
 	inset := layout.UniformInset(unit.Dp(16))
-	if len(ids.Service.Identities()) == 0 {
-		return inset.Layout(gtx, func(gtx Gtx) Dim {
-			return ids.drawNoIdentitiesCreated(gtx)
-		})
-	}
-	return inset.Layout(gtx, ids.drawIdentitiesItems)
+	d := inset.Layout(gtx, func(gtx Gtx) Dim {
+		flex := layout.Flex{Axis: layout.Vertical}
+		return flex.Layout(gtx,
+			layout.Rigid(func(gtx Gtx) Dim {
+				return Dim{}
+			}),
+			layout.Rigid(func(gtx Gtx) Dim {
+				if len(ids.Service.Identities()) == 0 {
+					return inset.Layout(gtx, func(gtx Gtx) Dim {
+						return ids.drawNoIdentitiesCreated(gtx)
+					})
+				}
+				return inset.Layout(gtx, ids.drawIdentitiesItems)
+			}))
+	})
+	return d
 }
 
-func (ids *IdentitiesPage) DrawAppBar(gtx Gtx) Dim {
+func (ids *IDPage) DrawAppBar(gtx Gtx) Dim {
 	gtx.Constraints.Max.Y = gtx.Px(unit.Dp(56))
 	th := ids.Theme
 	if ids.buttonNavigation.Clicked() {
@@ -110,11 +120,11 @@ func (ids *IdentitiesPage) DrawAppBar(gtx Gtx) Dim {
 	return Dim{Size: gtx.Constraints.Max}
 }
 
-func (ids *IdentitiesPage) drawIdentitiesItems(gtx Gtx) Dim {
+func (ids *IDPage) drawIdentitiesItems(gtx Gtx) Dim {
 	userIDs := ids.Service.Identities()
 	return ids.List.Layout(gtx, len(userIDs), func(gtx Gtx, index int) (d Dim) {
 		if len(ids.identitiesViews) < index+1 {
-			ids.identitiesViews = append(ids.identitiesViews, &IdentityListItem{
+			ids.identitiesViews = append(ids.identitiesViews, &IDListItem{
 				Theme:      ids.Theme,
 				AppManager: ids.AppManager,
 			})
@@ -126,7 +136,7 @@ func (ids *IdentitiesPage) drawIdentitiesItems(gtx Gtx) Dim {
 	})
 }
 
-func (ids *IdentitiesPage) drawNoIdentitiesCreated(gtx Gtx) Dim {
+func (ids *IDPage) drawNoIdentitiesCreated(gtx Gtx) Dim {
 	flex := layout.Flex{Axis: layout.Vertical, Spacing: layout.SpaceSides}
 	return flex.Layout(gtx, layout.Rigid(func(gtx Gtx) Dim {
 		return layout.Center.Layout(gtx, func(gtx Gtx) Dim {

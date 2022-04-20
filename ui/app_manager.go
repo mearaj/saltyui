@@ -8,6 +8,7 @@ import (
 	"gioui.org/unit"
 	"gioui.org/widget/material"
 	"gioui.org/x/component"
+	"gioui.org/x/explorer"
 	"github.com/mearaj/saltyui/service"
 	"golang.org/x/image/colornames"
 	"image/color"
@@ -28,6 +29,7 @@ type AppManager struct {
 	isWindowLoaded bool
 	Constraints    layout.Constraints
 	Metric         unit.Metric
+	*explorer.Explorer
 }
 
 // NewAppManager Always call this function to create AppManager instance
@@ -54,13 +56,14 @@ func (a *AppManager) init() {
 		a.Theme.ContrastBg, a.Theme.ContrastFg, a.Theme.Bg, a.Theme.Fg
 	a.NavDrawer = NewNavDrawer("Salty UI", "Decentralized Chat App", a, &navDrwTh, a.ModalLayer)
 	settingsNavItem := NewSettingsItem(a, a.Theme)
-	newChatNavItem := NewStartChatItem(a, a.Theme)
+	newChatNavItem := NewChatNavItem(a, a.Theme)
 	a.AddRootNavItem(settingsNavItem)
 	a.AddRootNavItem(newChatNavItem)
 	a.history = make([]Page, 1)
 	a.currentPage = settingsNavItem.Page()
 	a.history[0] = a.currentPage
 	a.Theme = material.NewTheme(gofont.Collection())
+	a.Explorer = explorer.NewExplorer(a.Window)
 }
 
 func (a *AppManager) Layout(gtx Gtx) Dim {

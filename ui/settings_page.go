@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"bytes"
 	"gioui.org/font/gofont"
 	"gioui.org/layout"
 	"gioui.org/unit"
@@ -13,6 +14,7 @@ import (
 	"golang.org/x/exp/shiny/materialdesign/icons"
 	"image"
 	"image/color"
+	"io"
 	"time"
 )
 
@@ -20,43 +22,49 @@ import (
 type SettingsPage struct {
 	widget.List
 	*AppManager
-	Theme                  *material.Theme
-	title                  string
-	iconCreateNewID        *widget.Icon
-	inputNewID             component.TextField
-	inputNewIDStr          string
-	buttonNewID            widget.Clickable
-	buttonRegistration     widget.Clickable
-	buttonNavigation       widget.Clickable
-	navigationIcon         *widget.Icon
-	iDDetailsAccordion     Accordion
-	iDConfigAccordion      Accordion
-	errorNewIDAccordion    Accordion
-	errorRegisterAccordion Accordion
-	iDDetailsView          IDDetailsView
-	errorCreateNewID       error
-	errorRegister          error
-	errorParseAddr         error
-	registerLoading        bool
-	loadedFromFile         bool
-	creatingNewID          bool
+	Theme              *material.Theme
+	title              string
+	iconCreateNewID    *widget.Icon
+	iconImportFile     *widget.Icon
+	inputNewID         component.TextField
+	inputImportFile    component.TextField
+	inputNewIDStr      string
+	inputImportFileStr string
+	buttonNewID        widget.Clickable
+	buttonRegistration widget.Clickable
+	buttonNavigation   widget.Clickable
+	buttonImport       widget.Clickable
+	navigationIcon     *widget.Icon
+	iDDetailsAccordion Accordion
+	iDConfigAccordion  Accordion
+	iDDetailsView      IDDetailsView
+	errorCreateNewID   error
+	errorRegister      error
+	errorImportFile    error
+	registerLoading    bool
+	creatingNewID      bool
+	importingFile      bool
+	idLoadedFromDB     bool
 }
 
 // NewSettingsPage Always call this function to create SettingsPage page
 func NewSettingsPage(manager *AppManager, th *material.Theme) *SettingsPage {
 	navIcon, _ := widget.NewIcon(icons.NavigationMenu)
 	iconCreateNewID, _ := widget.NewIcon(icons.ContentCreate)
+	iconImportFile, _ := widget.NewIcon(icons.FileFileUpload)
 	if th == nil {
 		th = material.NewTheme(gofont.Collection())
 	}
 	errorTh := *th
 	errorTh.ContrastBg = color.NRGBA(colornames.Red500)
 	return &SettingsPage{
-		AppManager:      manager,
-		Theme:           th,
-		title:           "Settings",
-		navigationIcon:  navIcon,
-		iconCreateNewID: iconCreateNewID,
+		AppManager:         manager,
+		Theme:              th,
+		title:              "Settings",
+		navigationIcon:     navIcon,
+		iconCreateNewID:    iconCreateNewID,
+		iconImportFile:     iconImportFile,
+		inputImportFileStr: "Import ID key file by clicking button",
 		iDDetailsView: IDDetailsView{
 			Theme:      th,
 			AppManager: manager,
@@ -72,22 +80,6 @@ func NewSettingsPage(manager *AppManager, th *material.Theme) *SettingsPage {
 		iDConfigAccordion: Accordion{
 			Theme: th,
 			Title: "View Current ID Config",
-			Animation: component.VisibilityAnimation{
-				State:    component.Visible,
-				Duration: time.Millisecond * 250,
-			},
-		},
-		errorNewIDAccordion: Accordion{
-			Theme: &errorTh,
-			Title: "ID Error",
-			Animation: component.VisibilityAnimation{
-				State:    component.Visible,
-				Duration: time.Millisecond * 250,
-			},
-		},
-		errorRegisterAccordion: Accordion{
-			Theme: &errorTh,
-			Title: "Register Error",
 			Animation: component.VisibilityAnimation{
 				State:    component.Visible,
 				Duration: time.Millisecond * 250,
@@ -109,20 +101,20 @@ func (s *SettingsPage) Layout(gtx Gtx) Dim {
 		s.Theme = material.NewTheme(gofont.Collection())
 	}
 	th := s.Theme
-	if !s.loadedFromFile {
-		s.loadedFromFile = true
+	if !s.idLoadedFromDB {
+		s.idLoadedFromDB = true
 		id := s.Service.Identity()
 		if id != nil {
 			s.inputNewIDStr = id.Addr().String()
 			s.inputNewID.SetText(s.inputNewIDStr)
 		}
 	}
+	s.inputImportFile.SetText(s.inputImportFileStr)
 	if s.inputNewID.Text() != s.inputNewIDStr {
 		s.errorRegister = nil
 		s.errorCreateNewID = nil
-		s.errorParseAddr = nil
 	}
-	_, s.errorParseAddr = saltyim.ParseAddr(s.inputNewID.Text())
+	_, s.errorCreateNewID = saltyim.ParseAddr(s.inputNewID.Text())
 	s.inputNewIDStr = s.inputNewID.Text()
 	return layout.UniformInset(unit.Dp(16)).Layout(gtx, func(gtx Gtx) Dim {
 		return layout.Flex{Axis: layout.Vertical}.Layout(gtx,
@@ -133,6 +125,12 @@ func (s *SettingsPage) Layout(gtx Gtx) Dim {
 						Alignment: layout.Middle,
 						Axis:      layout.Vertical,
 					}.Layout(gtx,
+						layout.Rigid(func(gtx Gtx) Dim {
+							return s.drawImportFileField(gtx)
+						}),
+						layout.Rigid(func(gtx Gtx) Dim {
+							return layout.Spacer{Height: unit.Dp(32)}.Layout(gtx)
+						}),
 						layout.Rigid(func(gtx Gtx) Dim {
 							return s.drawNewIDTextField(gtx)
 						}),
@@ -146,19 +144,10 @@ func (s *SettingsPage) Layout(gtx Gtx) Dim {
 							return layout.Spacer{Height: unit.Dp(32)}.Layout(gtx)
 						}),
 						layout.Rigid(func(gtx Gtx) Dim {
-							return s.drawErrorNewIDAccordion(gtx)
-						}),
-						layout.Rigid(func(gtx Gtx) Dim {
-							return layout.Spacer{Height: unit.Dp(32)}.Layout(gtx)
-						}),
-						layout.Rigid(func(gtx Gtx) Dim {
 							return s.drawRegistrationButton(gtx)
 						}),
 						layout.Rigid(func(gtx Gtx) Dim {
 							return layout.Spacer{Height: unit.Dp(32)}.Layout(gtx)
-						}),
-						layout.Rigid(func(gtx Gtx) Dim {
-							return s.drawErrorRegisterAccordion(gtx)
 						}),
 					)
 				})
@@ -208,20 +197,74 @@ func (s *SettingsPage) DrawAppBar(gtx Gtx) Dim {
 	return Dim{Size: gtx.Constraints.Max}
 }
 
+func (s *SettingsPage) drawImportFileField(gtx Gtx) Dim {
+	labelText := "Import ID"
+	labelHintText := "Import ID From File"
+	buttonText := "Import key file"
+	textTh := material.NewTheme(gofont.Collection())
+	textTh.Fg.A = 200
+	textTh.ContrastBg = textTh.Fg
+	if s.errorImportFile != nil {
+		s.inputImportFile.SetError(s.errorImportFile.Error())
+	} else {
+		s.inputImportFile.ClearError()
+	}
+	ib := IconButton{
+		Theme:  s.Theme,
+		Button: &s.buttonImport,
+		Icon:   s.iconImportFile,
+		Text:   buttonText,
+	}
+
+	if s.buttonImport.Clicked() && !s.importingFile {
+		s.importingFile = true
+		go func() {
+			var cl io.ReadCloser
+			cl, s.errorImportFile = s.Explorer.ChooseFile(".key")
+			defer func() {
+				if cl != nil {
+					_ = cl.Close()
+				}
+			}()
+			if s.errorImportFile == nil {
+				buff := bytes.Buffer{}
+				_, s.errorImportFile = buff.ReadFrom(cl)
+				if s.errorImportFile == nil {
+					s.errorImportFile = <-s.Service.CreateIDFromBytes(buff.Bytes())
+					if s.errorImportFile == nil {
+						if s.Service.Identity() != nil {
+							addr := s.Service.Identity().Addr().String()
+							s.inputNewID.SetText(addr)
+							s.inputImportFile.SetText(addr)
+							s.inputNewIDStr = addr
+							s.inputImportFileStr = addr
+						}
+					}
+				}
+			}
+			s.importingFile = false
+		}()
+	}
+	return drawFormFieldRowWithLabel(gtx, textTh, labelText, labelHintText, &s.inputImportFile, &ib)
+}
+
 func (s *SettingsPage) drawNewIDTextField(gtx Gtx) Dim {
 	labelText := "Enter New ID"
 	labelHintText := "User in the form user@domain"
 	buttonText := "Create New ID"
 	var button *widget.Clickable
 	var th *material.Theme
-	if s.errorParseAddr != nil {
+	if s.errorCreateNewID != nil && s.inputNewIDStr != "" {
 		button = &widget.Clickable{}
 		th = material.NewTheme(gofont.Collection())
 		th.ContrastBg = color.NRGBA(colornames.Grey500)
+		s.inputNewID.SetError(s.errorCreateNewID.Error())
 	} else {
 		button = &s.buttonNewID
 		th = s.Theme
+		s.inputNewID.ClearError()
 	}
+
 	ib := IconButton{
 		Theme:  th,
 		Button: button,
@@ -231,14 +274,11 @@ func (s *SettingsPage) drawNewIDTextField(gtx Gtx) Dim {
 	if button.Clicked() && !s.creatingNewID {
 		s.creatingNewID = true
 		go func() {
-			s.errorCreateNewID = <-s.Service.CreateID(s.inputNewID.Text())
-			if s.errorCreateNewID != nil {
-				s.errorNewIDAccordion.Animation.Appear(time.Now())
-			}
+			s.errorCreateNewID = <-s.Service.CreateIDFromAddrStr(s.inputNewID.Text())
 			s.creatingNewID = false
 		}()
 	}
-	return drawFormFieldRowWithLabel(gtx, s.Theme, labelText, labelHintText, &s.inputNewID, &ib)
+	return drawFormFieldRowWithLabel(gtx, th, labelText, labelHintText, &s.inputNewID, &ib)
 }
 
 func (s *SettingsPage) drawIDDetailsAccordion(gtx Gtx) (d Dim) {
@@ -254,30 +294,21 @@ func (s *SettingsPage) drawIDDetailsAccordion(gtx Gtx) (d Dim) {
 	return d
 }
 
-func (s *SettingsPage) drawErrorNewIDAccordion(gtx Gtx) (d Dim) {
-	if s.Service.Identity() == nil && s.errorCreateNewID != nil {
-		errView := ErrorView{}
-		s.errorNewIDAccordion.Child = errView.Layout
-		errView.Error = s.errorCreateNewID.Error()
-		return s.errorNewIDAccordion.Layout(gtx)
-	}
-	return d
-}
-
 func (s *SettingsPage) drawRegistrationButton(gtx Gtx) Dim {
 	buttonText := "Register with salty@domain for above id"
 	var button *widget.Clickable
 	var th *material.Theme
-	if s.errorParseAddr != nil {
+	if s.errorRegister != nil {
 		button = &widget.Clickable{}
 		th = material.NewTheme(gofont.Collection())
-		th.ContrastBg = color.NRGBA(colornames.Grey500)
+		th.ContrastBg = color.NRGBA(colornames.Red500)
+		th.Fg = th.ContrastBg
 	} else {
 		button = &s.buttonRegistration
 		th = s.Theme
 	}
 	ib := IconButton{
-		Theme:  th,
+		Theme:  s.Theme,
 		Button: button,
 		Icon:   s.iconCreateNewID,
 		Text:   buttonText,
@@ -293,15 +324,18 @@ func (s *SettingsPage) drawRegistrationButton(gtx Gtx) Dim {
 			s.Window.Invalidate()
 		}()
 	}
-	return ib.Layout(gtx)
-}
-
-func (s *SettingsPage) drawErrorRegisterAccordion(gtx Gtx) (d Dim) {
-	if s.errorRegister != nil {
-		errView := ErrorView{}
-		s.errorRegisterAccordion.Child = errView.Layout
-		errView.Error = s.errorRegister.Error()
-		return s.errorRegisterAccordion.Layout(gtx)
-	}
-	return d
+	return layout.Flex{Axis: layout.Vertical}.Layout(gtx,
+		layout.Rigid(func(gtx Gtx) Dim {
+			return ib.Layout(gtx)
+		}),
+		layout.Rigid(func(gtx Gtx) Dim {
+			if s.errorRegister != nil {
+				return layout.Inset{Bottom: unit.Dp(8.0)}.Layout(gtx,
+					func(gtx Gtx) Dim {
+						return material.Body1(th, s.errorRegister.Error()).Layout(gtx)
+					})
+			}
+			return Dim{}
+		}),
+	)
 }

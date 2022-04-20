@@ -31,7 +31,7 @@ func (n *SettingsNavItem) NavTitle() string {
 
 func NewSettingsItem(manager *AppManager, theme *material.Theme) *SettingsNavItem {
 	settingsPage := NewSettingsPage(manager, theme)
-	identitiesItem := NewIdentitiesItem(manager, theme)
+	identitiesItem := NewIDsNavItem(manager, theme)
 	icon, _ := widget.NewIcon(icons.ActionSettings)
 	return &SettingsNavItem{
 		page:       settingsPage,

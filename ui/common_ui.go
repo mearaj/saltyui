@@ -53,11 +53,15 @@ func drawFormFieldRowWithLabel(gtx Gtx, th *material.Theme, labelText string, la
 				)
 			}
 
-			flex := layout.Flex{Spacing: layout.SpaceBetween, Alignment: layout.End}
+			flex := layout.Flex{Spacing: layout.SpaceBetween, Alignment: layout.Start}
 			return flex.Layout(gtx,
 				layout.Flexed(1, func(gtx Gtx) Dim {
-					return textField.Layout(gtx,
-						th, labelHintText)
+					return layout.Flex{Axis: layout.Vertical}.Layout(gtx,
+						layout.Rigid(func(gtx2 Gtx) Dim {
+							return textField.Layout(gtx,
+								th, labelHintText)
+						}),
+					)
 				}),
 				layout.Rigid(func(gtx Gtx) Dim {
 					return layout.Spacer{
@@ -66,7 +70,9 @@ func drawFormFieldRowWithLabel(gtx Gtx, th *material.Theme, labelText string, la
 				}),
 				layout.Rigid(func(gtx Gtx) Dim {
 					gtx.Constraints.Min.X = 180
-					return button.Layout(gtx)
+					return layout.Inset{Top: unit.Dp(7)}.Layout(gtx, func(gtx Gtx) Dim {
+						return button.Layout(gtx)
+					})
 				}),
 			)
 		}),

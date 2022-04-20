@@ -23,6 +23,7 @@ func Loop(w *app.Window) error {
 	for {
 		select {
 		case e := <-w.Events():
+			am.Explorer.ListenEvents(e)
 			switch e := e.(type) {
 			case system.DestroyEvent:
 				return e.Err
@@ -35,6 +36,7 @@ func Loop(w *app.Window) error {
 				if !am.isWindowLoaded {
 					am.isWindowLoaded = true
 				}
+			default:
 			}
 		}
 	}

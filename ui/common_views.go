@@ -32,10 +32,11 @@ func (i *IDDetailsView) Layout(gtx Gtx) (d Dim) {
 		if i.configButton.Clicked() && !i.exportingConfig {
 			i.exportingConfig = true
 			go func() {
-				_, err := i.Service.ConfigJSON()
+				cfg, err := i.Service.ConfigJSON()
 				if err != nil {
 					alog.Logger().Errorln(err)
 				}
+				alog.Logger().Println(cfg)
 				i.exportingConfig = false
 			}()
 		}
@@ -47,19 +48,22 @@ func (i *IDDetailsView) Layout(gtx Gtx) (d Dim) {
 				maxWidth := gtx.Constraints.Max.X
 				return layout.Flex{Spacing: layout.SpaceSides}.Layout(gtx,
 					layout.Rigid(func(gtx2 Gtx) Dim {
-						gtx.Constraints.Max.X = maxWidth / 3
+						gtx.Constraints.Max.X = (maxWidth / 3) - 32
 						return material.Button(i.Theme, &i.copyButton, "Copy to Clipboard").Layout(gtx)
 					}),
 					layout.Rigid(func(gtx2 Gtx) Dim {
-						return layout.Spacer{Width: unit.Dp(16)}.Layout(gtx)
+						return layout.Spacer{Width: unit.Dp(32)}.Layout(gtx)
 					}),
 					layout.Rigid(func(gtx2 Gtx) Dim {
-						gtx.Constraints.Max.X = maxWidth / 3
+						gtx.Constraints.Max.X = (maxWidth / 3) - 32
 						button := &i.configButton
 						if i.exportingConfig {
 							button = &widget.Clickable{}
 						}
 						return material.Button(i.Theme, button, "Export config").Layout(gtx)
+					}),
+					layout.Rigid(func(gtx2 Gtx) Dim {
+						return layout.Spacer{Width: unit.Dp(32)}.Layout(gtx)
 					}),
 				)
 			}),
@@ -68,14 +72,14 @@ func (i *IDDetailsView) Layout(gtx Gtx) (d Dim) {
 	return d
 }
 
-type IdentityListItem struct {
+type IDListItem struct {
 	*material.Theme
 	widget   widget.Clickable
 	Selected bool
 	*AppManager
 }
 
-func (i *IdentityListItem) Layout(gtx Gtx, index int) Dim {
+func (i *IDListItem) Layout(gtx Gtx, index int) Dim {
 	if i.widget.Clicked() {
 		i.Selected = !i.Selected
 	}
