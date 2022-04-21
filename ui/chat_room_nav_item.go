@@ -90,8 +90,10 @@ func (n *ChatRoomNavItem) Layout(gtx Gtx) Dim {
 			})
 		}
 	}
-	if n.selectedItem == n || n.Accordion.Hovered() {
-		n.Accordion.ButtonLayoutStyle.Background = n.Theme.ContrastBg
+	if n.SelectedItem() == n || n.Hovered() {
+		n.Accordion.Background = color.NRGBA{A: 50}
+	} else {
+		n.Accordion.Background = n.Theme.ContrastBg
 	}
 	inset := layout.Inset{Top: unit.Dp(8)}
 	return inset.Layout(gtx, func(gtx Gtx) Dim {

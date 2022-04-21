@@ -19,7 +19,6 @@ import (
 
 type Accordion struct {
 	Animation component.VisibilityAnimation
-	component.AlphaPalette
 	widget.Clickable
 	Child layout.Widget
 	*material.Theme
