@@ -224,7 +224,7 @@ func (s *SettingsPage) drawImportFileField(gtx Gtx) Dim {
 		s.importingFile = true
 		go func() {
 			var cl io.ReadCloser
-			cl, s.errorImportFile = s.Explorer.ChooseFile(".key")
+			cl, s.errorImportFile = s.Explorer.ChooseFile()
 			defer func() {
 				if cl != nil {
 					_ = cl.Close()
