@@ -57,7 +57,7 @@ func NewSettingsPage(manager *AppManager, th *material.Theme) *SettingsPage {
 	}
 	errorTh := *th
 	errorTh.ContrastBg = color.NRGBA(colornames.Red500)
-	return &SettingsPage{
+	s := SettingsPage{
 		AppManager:         manager,
 		Theme:              th,
 		title:              "Settings",
@@ -86,6 +86,10 @@ func NewSettingsPage(manager *AppManager, th *material.Theme) *SettingsPage {
 			},
 		},
 	}
+	s.iDDetailsAccordion.Background = th.ContrastBg
+	s.iDConfigAccordion.Background = th.ContrastBg
+
+	return &s
 }
 
 func (s *SettingsPage) Actions() []component.AppBarAction {

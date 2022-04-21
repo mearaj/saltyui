@@ -63,10 +63,10 @@ func (i *IDDetailsView) Layout(gtx Gtx) (d Dim) {
 						gtx.Constraints.Max.X = (maxWidth / 3) - 32
 						return material.Button(i.Theme, &i.copyButton, "Copy to Clipboard").Layout(gtx)
 					}),
-					layout.Rigid(func(gtx2 Gtx) Dim {
+					layout.Rigid(func(gtx Gtx) Dim {
 						return layout.Spacer{Width: unit.Dp(32)}.Layout(gtx)
 					}),
-					layout.Rigid(func(gtx2 Gtx) Dim {
+					layout.Rigid(func(gtx Gtx) Dim {
 						gtx.Constraints.Max.X = (maxWidth / 3) - 32
 						button := &i.configButton
 						if i.exportingConfig {
@@ -74,7 +74,7 @@ func (i *IDDetailsView) Layout(gtx Gtx) (d Dim) {
 						}
 						return material.Button(i.Theme, button, "Export config").Layout(gtx)
 					}),
-					layout.Rigid(func(gtx2 Gtx) Dim {
+					layout.Rigid(func(gtx Gtx) Dim {
 						return layout.Spacer{Width: unit.Dp(32)}.Layout(gtx)
 					}),
 				)
