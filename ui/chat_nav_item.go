@@ -112,9 +112,7 @@ func (n *ChatNavItem) Layout(gtx Gtx) Dim {
 		n.Accordion.Child = nil
 	}
 	if n.selectedItem == n || n.Accordion.Hovered() {
-		n.Accordion.Theme = n.ThemeAlt
-	} else {
-		n.Accordion.Theme = n.Theme
+		n.Accordion.ButtonLayoutStyle.Background = n.Theme.ContrastBg
 	}
 	inset := layout.Inset{Top: unit.Dp(8)}
 	return inset.Layout(gtx, func(gtx Gtx) Dim {

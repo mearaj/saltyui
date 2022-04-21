@@ -8,7 +8,6 @@ import (
 	"gioui.org/widget/material"
 	"gioui.org/x/component"
 	"golang.org/x/exp/shiny/materialdesign/icons"
-	"image/color"
 	"time"
 )
 
@@ -20,7 +19,7 @@ type SettingsNavItem struct {
 	children []NavItem
 	widget.Clickable
 	*material.Theme
-	ThemeAlt *material.Theme
+	//ThemeAlt *material.Theme
 	Accordion
 	url PageURL
 }
@@ -72,12 +71,7 @@ func (n *SettingsNavItem) Layout(gtx Gtx) Dim {
 	if n.Theme == nil {
 		n.Theme = material.NewTheme(gofont.Collection())
 	}
-	if n.ThemeAlt == nil {
-		newTheme := *n.Theme
-		newTheme.ContrastBg = color.NRGBA{}
-		newTheme.ContrastBg.A = 50
-		n.ThemeAlt = &newTheme
-	}
+
 	if n.Accordion.ClickCallback == nil {
 		n.Accordion.ClickCallback = n.ClickCallback
 	}
@@ -94,10 +88,8 @@ func (n *SettingsNavItem) Layout(gtx Gtx) Dim {
 			})
 		}
 	}
-	if n.selectedItem == n || n.Accordion.Hovered() {
-		n.Accordion.Theme = n.ThemeAlt
-	} else {
-		n.Accordion.Theme = n.Theme
+	if n.selectedItem == n || n.Hovered() {
+		n.Accordion.ButtonLayoutStyle.Background = n.Theme.ContrastBg
 	}
 	inset := layout.Inset{Top: unit.Dp(8)}
 	return inset.Layout(gtx, func(gtx Gtx) Dim {

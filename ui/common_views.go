@@ -1,6 +1,8 @@
 package ui
 
 import (
+	"encoding/json"
+	"fmt"
 	"gioui.org/font/gofont"
 	"gioui.org/layout"
 	"gioui.org/unit"
@@ -36,7 +38,17 @@ func (i *IDDetailsView) Layout(gtx Gtx) (d Dim) {
 				if err != nil {
 					alog.Logger().Errorln(err)
 				}
-				alog.Logger().Println(cfg)
+				if cfg != nil {
+					cfgPrint := map[string]interface{}{
+						"config": map[string]interface{}{
+							"key":      cfg.Config.Key,
+							"endpoint": cfg.Config.Endpoint,
+						},
+						"hash": cfg.Hash,
+					}
+					cfgMar, _ := json.MarshalIndent(cfgPrint, "", "  ")
+					fmt.Println(string(cfgMar))
+				}
 				i.exportingConfig = false
 			}()
 		}

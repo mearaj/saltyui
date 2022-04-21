@@ -28,6 +28,7 @@ type Accordion struct {
 	TitleIcon       *widget.Icon
 	ClickCallback   func()
 	NoToggleOnClick bool
+	material.ButtonLayoutStyle
 }
 
 func (a *Accordion) Layout(gtx Gtx) (d Dim) {
@@ -37,7 +38,7 @@ func (a *Accordion) Layout(gtx Gtx) (d Dim) {
 	if a.Theme == nil {
 		a.Theme = material.NewTheme(gofont.Collection())
 	}
-	th := a.Theme
+
 	if a.Animation.Duration == time.Duration(0) {
 		a.Animation.Duration = time.Millisecond * 100
 		a.Animation.State = component.Invisible
@@ -53,7 +54,10 @@ func (a *Accordion) Layout(gtx Gtx) (d Dim) {
 
 	d = layout.Flex{Axis: layout.Vertical}.Layout(gtx,
 		layout.Rigid(func(gtx Gtx) Dim {
-			d = material.ButtonLayout(th, &a.Clickable).Layout(gtx,
+			if a.ButtonLayoutStyle.Button == nil {
+				a.ButtonLayoutStyle.Button = &a.Clickable
+			}
+			d = a.ButtonLayoutStyle.Layout(gtx,
 				func(gtx Gtx) Dim {
 					return a.layoutHeader(gtx)
 				},
