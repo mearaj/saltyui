@@ -43,7 +43,6 @@ type SettingsPage struct {
 	errorImportFile    error
 	registerLoading    bool
 	creatingNewID      bool
-	importingFile      bool
 	idLoadedFromDB     bool
 }
 
@@ -220,8 +219,7 @@ func (s *SettingsPage) drawImportFileField(gtx Gtx) Dim {
 		Text:   buttonText,
 	}
 
-	if s.buttonImport.Clicked() && !s.importingFile {
-		s.importingFile = true
+	if s.buttonImport.Clicked() {
 		go func() {
 			var cl io.ReadCloser
 			cl, s.errorImportFile = s.Explorer.ChooseFile()
@@ -246,7 +244,6 @@ func (s *SettingsPage) drawImportFileField(gtx Gtx) Dim {
 					}
 				}
 			}
-			s.importingFile = false
 		}()
 	}
 	return drawFormFieldRowWithLabel(gtx, textTh, labelText, labelHintText, &s.inputImportFile, &ib)
