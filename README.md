@@ -50,7 +50,17 @@ gogio -target android .
 You can then install apk to the emulator or real device using:
 
 ```#!console
-adb install slatyui.apk
+adb install saltyui.apk
+```
+
+### iOS Debug Development
+
+```#!console
+gogio -o saltyui.app -target ios .
+```
+Startup an iOS sim ( and wait for eternity )
+```#!console
+xcrun simctl install booted saltyui.app
 ```
 
 ### WebServer
