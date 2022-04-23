@@ -1,0 +1,710 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 55;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		6EB4692528137DE600450DB7 /* Tests_iOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EB4692428137DE600450DB7 /* Tests_iOS.swift */; };
+		6EB4692728137DE600450DB7 /* Tests_iOSLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EB4692628137DE600450DB7 /* Tests_iOSLaunchTests.swift */; };
+		6EB4693128137DE600450DB7 /* Tests_macOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EB4693028137DE600450DB7 /* Tests_macOS.swift */; };
+		6EB4693328137DE600450DB7 /* Tests_macOSLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EB4693228137DE600450DB7 /* Tests_macOSLaunchTests.swift */; };
+		6EB4693428137DE600450DB7 /* saltychatApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EB4690C28137DE500450DB7 /* saltychatApp.swift */; };
+		6EB4693528137DE600450DB7 /* saltychatApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EB4690C28137DE500450DB7 /* saltychatApp.swift */; };
+		6EB4693628137DE600450DB7 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EB4690D28137DE500450DB7 /* ContentView.swift */; };
+		6EB4693728137DE600450DB7 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EB4690D28137DE500450DB7 /* ContentView.swift */; };
+		6EB4693828137DE600450DB7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6EB4690E28137DE600450DB7 /* Assets.xcassets */; };
+		6EB4693928137DE600450DB7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6EB4690E28137DE600450DB7 /* Assets.xcassets */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		6EB4692128137DE600450DB7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6EB4690728137DE500450DB7 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6EB4691228137DE600450DB7;
+			remoteInfo = "saltychat (iOS)";
+		};
+		6EB4692D28137DE600450DB7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6EB4690728137DE500450DB7 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6EB4691828137DE600450DB7;
+			remoteInfo = "saltychat (macOS)";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		6EB4690C28137DE500450DB7 /* saltychatApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = saltychatApp.swift; sourceTree = "<group>"; };
+		6EB4690D28137DE500450DB7 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		6EB4690E28137DE600450DB7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		6EB4691328137DE600450DB7 /* saltychat.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = saltychat.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		6EB4691928137DE600450DB7 /* saltychat.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = saltychat.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		6EB4691B28137DE600450DB7 /* macOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = macOS.entitlements; sourceTree = "<group>"; };
+		6EB4692028137DE600450DB7 /* Tests iOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Tests iOS.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		6EB4692428137DE600450DB7 /* Tests_iOS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests_iOS.swift; sourceTree = "<group>"; };
+		6EB4692628137DE600450DB7 /* Tests_iOSLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests_iOSLaunchTests.swift; sourceTree = "<group>"; };
+		6EB4692C28137DE600450DB7 /* Tests macOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Tests macOS.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		6EB4693028137DE600450DB7 /* Tests_macOS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests_macOS.swift; sourceTree = "<group>"; };
+		6EB4693228137DE600450DB7 /* Tests_macOSLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests_macOSLaunchTests.swift; sourceTree = "<group>"; };
+		6EB4694828137E6900450DB7 /* saltychat (iOS).entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "saltychat (iOS).entitlements"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		6EB4691028137DE600450DB7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6EB4691628137DE600450DB7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6EB4691D28137DE600450DB7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6EB4692928137DE600450DB7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		6EB4690628137DE500450DB7 = {
+			isa = PBXGroup;
+			children = (
+				6EB4694828137E6900450DB7 /* saltychat (iOS).entitlements */,
+				6EB4690B28137DE500450DB7 /* Shared */,
+				6EB4691A28137DE600450DB7 /* macOS */,
+				6EB4692328137DE600450DB7 /* Tests iOS */,
+				6EB4692F28137DE600450DB7 /* Tests macOS */,
+				6EB4691428137DE600450DB7 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		6EB4690B28137DE500450DB7 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				6EB4690C28137DE500450DB7 /* saltychatApp.swift */,
+				6EB4690D28137DE500450DB7 /* ContentView.swift */,
+				6EB4690E28137DE600450DB7 /* Assets.xcassets */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		6EB4691428137DE600450DB7 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				6EB4691328137DE600450DB7 /* saltychat.app */,
+				6EB4691928137DE600450DB7 /* saltychat.app */,
+				6EB4692028137DE600450DB7 /* Tests iOS.xctest */,
+				6EB4692C28137DE600450DB7 /* Tests macOS.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		6EB4691A28137DE600450DB7 /* macOS */ = {
+			isa = PBXGroup;
+			children = (
+				6EB4691B28137DE600450DB7 /* macOS.entitlements */,
+			);
+			path = macOS;
+			sourceTree = "<group>";
+		};
+		6EB4692328137DE600450DB7 /* Tests iOS */ = {
+			isa = PBXGroup;
+			children = (
+				6EB4692428137DE600450DB7 /* Tests_iOS.swift */,
+				6EB4692628137DE600450DB7 /* Tests_iOSLaunchTests.swift */,
+			);
+			path = "Tests iOS";
+			sourceTree = "<group>";
+		};
+		6EB4692F28137DE600450DB7 /* Tests macOS */ = {
+			isa = PBXGroup;
+			children = (
+				6EB4693028137DE600450DB7 /* Tests_macOS.swift */,
+				6EB4693228137DE600450DB7 /* Tests_macOSLaunchTests.swift */,
+			);
+			path = "Tests macOS";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		6EB4691228137DE600450DB7 /* saltychat (iOS) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6EB4693C28137DE600450DB7 /* Build configuration list for PBXNativeTarget "saltychat (iOS)" */;
+			buildPhases = (
+				6EB4690F28137DE600450DB7 /* Sources */,
+				6EB4691028137DE600450DB7 /* Frameworks */,
+				6EB4691128137DE600450DB7 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "saltychat (iOS)";
+			productName = "saltychat (iOS)";
+			productReference = 6EB4691328137DE600450DB7 /* saltychat.app */;
+			productType = "com.apple.product-type.application";
+		};
+		6EB4691828137DE600450DB7 /* saltychat (macOS) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6EB4693F28137DE600450DB7 /* Build configuration list for PBXNativeTarget "saltychat (macOS)" */;
+			buildPhases = (
+				6EB4691528137DE600450DB7 /* Sources */,
+				6EB4691628137DE600450DB7 /* Frameworks */,
+				6EB4691728137DE600450DB7 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "saltychat (macOS)";
+			productName = "saltychat (macOS)";
+			productReference = 6EB4691928137DE600450DB7 /* saltychat.app */;
+			productType = "com.apple.product-type.application";
+		};
+		6EB4691F28137DE600450DB7 /* Tests iOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6EB4694228137DE600450DB7 /* Build configuration list for PBXNativeTarget "Tests iOS" */;
+			buildPhases = (
+				6EB4691C28137DE600450DB7 /* Sources */,
+				6EB4691D28137DE600450DB7 /* Frameworks */,
+				6EB4691E28137DE600450DB7 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				6EB4692228137DE600450DB7 /* PBXTargetDependency */,
+			);
+			name = "Tests iOS";
+			productName = "Tests iOS";
+			productReference = 6EB4692028137DE600450DB7 /* Tests iOS.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+		6EB4692B28137DE600450DB7 /* Tests macOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6EB4694528137DE600450DB7 /* Build configuration list for PBXNativeTarget "Tests macOS" */;
+			buildPhases = (
+				6EB4692828137DE600450DB7 /* Sources */,
+				6EB4692928137DE600450DB7 /* Frameworks */,
+				6EB4692A28137DE600450DB7 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				6EB4692E28137DE600450DB7 /* PBXTargetDependency */,
+			);
+			name = "Tests macOS";
+			productName = "Tests macOS";
+			productReference = 6EB4692C28137DE600450DB7 /* Tests macOS.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		6EB4690728137DE500450DB7 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1330;
+				LastUpgradeCheck = 1330;
+				TargetAttributes = {
+					6EB4691228137DE600450DB7 = {
+						CreatedOnToolsVersion = 13.3.1;
+					};
+					6EB4691828137DE600450DB7 = {
+						CreatedOnToolsVersion = 13.3.1;
+					};
+					6EB4691F28137DE600450DB7 = {
+						CreatedOnToolsVersion = 13.3.1;
+						TestTargetID = 6EB4691228137DE600450DB7;
+					};
+					6EB4692B28137DE600450DB7 = {
+						CreatedOnToolsVersion = 13.3.1;
+						TestTargetID = 6EB4691828137DE600450DB7;
+					};
+				};
+			};
+			buildConfigurationList = 6EB4690A28137DE500450DB7 /* Build configuration list for PBXProject "saltychat" */;
+			compatibilityVersion = "Xcode 13.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 6EB4690628137DE500450DB7;
+			productRefGroup = 6EB4691428137DE600450DB7 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				6EB4691228137DE600450DB7 /* saltychat (iOS) */,
+				6EB4691828137DE600450DB7 /* saltychat (macOS) */,
+				6EB4691F28137DE600450DB7 /* Tests iOS */,
+				6EB4692B28137DE600450DB7 /* Tests macOS */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		6EB4691128137DE600450DB7 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6EB4693828137DE600450DB7 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6EB4691728137DE600450DB7 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6EB4693928137DE600450DB7 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6EB4691E28137DE600450DB7 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6EB4692A28137DE600450DB7 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		6EB4690F28137DE600450DB7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6EB4693628137DE600450DB7 /* ContentView.swift in Sources */,
+				6EB4693428137DE600450DB7 /* saltychatApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6EB4691528137DE600450DB7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6EB4693728137DE600450DB7 /* ContentView.swift in Sources */,
+				6EB4693528137DE600450DB7 /* saltychatApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6EB4691C28137DE600450DB7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6EB4692728137DE600450DB7 /* Tests_iOSLaunchTests.swift in Sources */,
+				6EB4692528137DE600450DB7 /* Tests_iOS.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6EB4692828137DE600450DB7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6EB4693328137DE600450DB7 /* Tests_macOSLaunchTests.swift in Sources */,
+				6EB4693128137DE600450DB7 /* Tests_macOS.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		6EB4692228137DE600450DB7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 6EB4691228137DE600450DB7 /* saltychat (iOS) */;
+			targetProxy = 6EB4692128137DE600450DB7 /* PBXContainerItemProxy */;
+		};
+		6EB4692E28137DE600450DB7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 6EB4691828137DE600450DB7 /* saltychat (macOS) */;
+			targetProxy = 6EB4692D28137DE600450DB7 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		6EB4693A28137DE600450DB7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		6EB4693B28137DE600450DB7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+			};
+			name = Release;
+		};
+		6EB4693D28137DE600450DB7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "saltychat (iOS).entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7AQ3N83FMC;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = salty.im.saltychat;
+				PRODUCT_NAME = saltychat;
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		6EB4693E28137DE600450DB7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "saltychat (iOS).entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7AQ3N83FMC;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = salty.im.saltychat;
+				PRODUCT_NAME = saltychat;
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		6EB4694028137DE600450DB7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = macOS/macOS.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7AQ3N83FMC;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 12.3;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = salty.im.saltychat;
+				PRODUCT_NAME = saltychat;
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		6EB4694128137DE600450DB7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = macOS/macOS.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7AQ3N83FMC;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 12.3;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = salty.im.saltychat;
+				PRODUCT_NAME = saltychat;
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		6EB4694328137DE600450DB7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7AQ3N83FMC;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.4;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "salty.im.Tests-iOS";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = "saltychat (iOS)";
+			};
+			name = Debug;
+		};
+		6EB4694428137DE600450DB7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7AQ3N83FMC;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.4;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "salty.im.Tests-iOS";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = "saltychat (iOS)";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		6EB4694628137DE600450DB7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7AQ3N83FMC;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 12.3;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "salty.im.Tests-macOS";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = "saltychat (macOS)";
+			};
+			name = Debug;
+		};
+		6EB4694728137DE600450DB7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7AQ3N83FMC;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 12.3;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "salty.im.Tests-macOS";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = "saltychat (macOS)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		6EB4690A28137DE500450DB7 /* Build configuration list for PBXProject "saltychat" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6EB4693A28137DE600450DB7 /* Debug */,
+				6EB4693B28137DE600450DB7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		6EB4693C28137DE600450DB7 /* Build configuration list for PBXNativeTarget "saltychat (iOS)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6EB4693D28137DE600450DB7 /* Debug */,
+				6EB4693E28137DE600450DB7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		6EB4693F28137DE600450DB7 /* Build configuration list for PBXNativeTarget "saltychat (macOS)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6EB4694028137DE600450DB7 /* Debug */,
+				6EB4694128137DE600450DB7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		6EB4694228137DE600450DB7 /* Build configuration list for PBXNativeTarget "Tests iOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6EB4694328137DE600450DB7 /* Debug */,
+				6EB4694428137DE600450DB7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		6EB4694528137DE600450DB7 /* Build configuration list for PBXNativeTarget "Tests macOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6EB4694628137DE600450DB7 /* Debug */,
+				6EB4694728137DE600450DB7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 6EB4690728137DE500450DB7 /* Project object */;
+}

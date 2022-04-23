@@ -15,8 +15,11 @@
 # vendor/
 
 .idea
+*.ipa
+*.app
 *.apk
 *.apk.idsig
 
 /web
 /saltyui
+**/.DS_Store
