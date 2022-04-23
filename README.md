@@ -1,4 +1,6 @@
-# Salty UI
+# This project is shifted at https://git.mills.io/saltyim/app #
+
+## Salty UI
 
 A cross-platform, decentralized, chat app based on [SaltyIM](https://git.mills.io/saltyim/saltyim) for functionality and 
 [GioUI](https://gioui.org/) for UI
